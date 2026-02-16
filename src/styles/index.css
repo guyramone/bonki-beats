@@ -557,6 +557,8 @@ button {
 
 .sequencer-cell.active {
   background: var(--accent-warm);
+  /* Slow fade-OUT when beat cursor leaves — creates visible "trigger tail" */
+  transition: filter 0.3s ease-out, box-shadow 0.3s ease-out;
 }
 
 .sequencer-cell:active {
@@ -575,24 +577,26 @@ button {
 
 /* Beat position — inactive cells show subtle column marker */
 .sequencer-cell.on-beat {
-  background: rgba(255, 255, 255, 0.06);
-  transition: all 0.05s ease;
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 0.15s ease-out;
 }
 
-/* Beat position — active cells PULSE their per-row color */
+/* Beat position — active cells FLASH their color (instant ON, slow fade OFF) */
 .sequencer-cell.on-beat.active {
-  filter: brightness(1.4);
-  transition: all 0.05s ease;
+  filter: brightness(1.8);
+  transform: scale(1.08);
+  /* Instant ON — no transition delay when beat hits */
+  transition: filter 0s, box-shadow 0s, transform 0s;
 }
 
-.sequencer-cell.on-beat.active[data-row="0"] { box-shadow: 0 0 10px var(--accent-warm); }
-.sequencer-cell.on-beat.active[data-row="1"] { box-shadow: 0 0 10px var(--accent-cool); }
-.sequencer-cell.on-beat.active[data-row="2"] { box-shadow: 0 0 10px var(--accent-primary); }
-.sequencer-cell.on-beat.active[data-row="3"] { box-shadow: 0 0 10px #5bc0de; }
-.sequencer-cell.on-beat.active[data-row="4"] { box-shadow: 0 0 10px #c678dd; }
-.sequencer-cell.on-beat.active[data-row="5"] { box-shadow: 0 0 10px #e06c75; }
-.sequencer-cell.on-beat.active[data-row="6"] { box-shadow: 0 0 10px #61afef; }
-.sequencer-cell.on-beat.active[data-row="7"] { box-shadow: 0 0 10px #e5c07b; }
+.sequencer-cell.on-beat.active[data-row="0"] { box-shadow: 0 0 16px var(--accent-warm); }
+.sequencer-cell.on-beat.active[data-row="1"] { box-shadow: 0 0 16px var(--accent-cool); }
+.sequencer-cell.on-beat.active[data-row="2"] { box-shadow: 0 0 16px var(--accent-primary); }
+.sequencer-cell.on-beat.active[data-row="3"] { box-shadow: 0 0 16px #5bc0de; }
+.sequencer-cell.on-beat.active[data-row="4"] { box-shadow: 0 0 16px #c678dd; }
+.sequencer-cell.on-beat.active[data-row="5"] { box-shadow: 0 0 16px #e06c75; }
+.sequencer-cell.on-beat.active[data-row="6"] { box-shadow: 0 0 16px #61afef; }
+.sequencer-cell.on-beat.active[data-row="7"] { box-shadow: 0 0 16px #e5c07b; }
 
 /* --- Sequencer Header & Clear Button --- */
 
