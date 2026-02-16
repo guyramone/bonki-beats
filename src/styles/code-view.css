@@ -195,3 +195,81 @@
 .code-view .token.parameter {
   color: #e06c75;
 }
+
+/* ============================================================
+   Alive Code View — Beat-synced animations
+   Per-line color borders, bounce on beat, pattern char parsing,
+   moving cursor. Makes code a second way to read the rhythm.
+   ============================================================ */
+
+/* --- Sound Row Lines (colored left border) --- */
+
+.code-line-sound {
+  border-left: 3px solid transparent;
+  padding-left: calc(var(--space-xs) + 4px);
+  will-change: transform;
+  transition: border-left-color 0.2s ease;
+}
+
+/* --- Bounce Animation (triggers when row fires on beat) --- */
+
+@keyframes code-bounce {
+  0% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.code-line-bounce {
+  animation: code-bounce 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Pattern Character Styling --- */
+
+/* Hit character: x — bright, bold, slightly larger */
+.pattern-hit {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+/* Rest character: ~ — dim, faded, slightly smaller */
+.pattern-rest {
+  color: #3e4451;
+  font-weight: 400;
+  font-size: 0.9em;
+  opacity: 0.5;
+}
+
+/* Space between pattern chars */
+.pattern-space {
+  font-size: 0.7em;
+}
+
+/* --- Moving Cursor (highlights current beat position in pattern) --- */
+
+.pattern-cursor {
+  position: relative;
+  border-radius: 2px;
+  padding: 0 1px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 0.08s ease;
+}
+
+/* Cursor on a hit (x) — glows with the row color */
+.pattern-cursor-hit {
+  background: color-mix(in srgb, var(--char-color, #f5a623) 25%, transparent);
+  text-shadow: 0 0 6px var(--char-color, #f5a623);
+}
+
+/* --- Wrapper Lines (stack parens) --- */
+
+.code-line-wrapper {
+  opacity: 0.4;
+  font-size: 0.95em;
+}
