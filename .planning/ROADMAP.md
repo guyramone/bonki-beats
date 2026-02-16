@@ -29,10 +29,10 @@ Four phases building from "tap a pad, hear a sound, see Bonki vibe" to "chat wit
 **Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: Scaffold Vite project, install @strudel/web, PWA manifest, service worker shell
-- [ ] 01-02: Build tabbed UI shell (SEQUENCE | PADS | AI placeholder), TE-inspired CSS, responsive layout
-- [ ] 01-03: Build 8-step sequencer + 4x4 pad grid, wire to Strudel evaluate(), transport controls
-- [ ] 01-04: Create Bonki pixel art sprite (CSS or canvas), idle + vibing animations, integrate into UI
+- [ ] 01-01-PLAN.md — Scaffold Vite + React project, install @strudel/web, PWA manifest + service worker (Wave 1)
+- [ ] 01-02-PLAN.md — Build tabbed UI shell (SEQUENCE | PADS | AI), TE-inspired CSS, responsive layout (Wave 2)
+- [ ] 01-03-PLAN.md — Build 8-step sequencer + 4x4 pad grid, wire to Strudel evaluate(), transport controls (Wave 3)
+- [ ] 01-04-PLAN.md — Create Bonki pixel art character, idle + vibing animations, integrate into transport bar (Wave 3)
 
 <task type="checkpoint:human-verify" gate="blocking">
   <what-built>HOMIE Beats Phase 1 — working instrument with sequencer, pads, Bonki, TE design</what-built>
@@ -114,7 +114,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. The Pad | 0/4 | Not started | - |
+| 1. The Pad | 0/4 | Planned (4 plans in 3 waves) | - |
 | 2. The Board | 0/3 | Not started | - |
 | 3. The Brain | 0/3 | Not started | - |
 | 4. The Polish | 0/3 | Not started | - |
