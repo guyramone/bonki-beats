@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 ## Current Position
 
 Phase: 2 of 4 (The Board)
-Plan: 3 of 3 in current phase
+Plan: 4 of 5 in current phase
 Status: Executing Phase 2
-Last activity: 2026-02-16 — Completed 02-03-PLAN.md (Code View)
+Last activity: 2026-02-16 — Completed 02-04-PLAN.md (Gap Closure: Playback Bug Fixes)
 
-Progress: [##########] 100% (Phase 2)
+Progress: [########--] 80% (Phase 2)
 
 ## Accumulated Context
 
@@ -42,6 +42,7 @@ Progress: [##########] 100% (Phase 2)
 - **Plan 02-01:** HUSH clears all layers + stops (panic button). Transport HUSH handler lifted to App.jsx (onHush prop). Grid always 16 wide, stepCount slices view. Volume throttled 100ms, BPM not throttled. Pads add as layers instead of replacing playback.
 - **Plan 02-02:** Preview (tap) vs Add (+) as distinct preset interactions. BonkiCovers use shared BaseBonki body with swapped accessories per genre. messageKey counter pattern for re-triggering identical BonkiSpeech messages. Touch-device "+" button always visible via @media (hover: none).
 - **Plan 02-03:** Prism.highlight() string API (not DOM-based) for React compatibility. displayCode shows clean code without .gain() wrapper. Split-pane stacks on mobile, side-by-side on tablet+. Reused BonkiSpeech component from 02-02 with messageKey for re-trigger support.
+- **Plan 02-04:** Functional setLayers pattern in handleBpmChange for current-state access (consistent with volume throttle). React key={stepCount} on Sequencer for guaranteed remount on step toggle.
 
 ### Technical Reference
 
@@ -66,9 +67,10 @@ Progress: [##########] 100% (Phase 2)
 | 02-01 | 402s (6m 42s) | 2 | 10 | 2026-02-16 |
 | 02-02 | 386s (6m 26s) | 2 | 7 | 2026-02-16 |
 | 02-03 | 335s (5m 35s) | 2 | 6 | 2026-02-16 |
+| 02-04 | 73s (1m 13s) | 2 | 1 | 2026-02-16 |
 
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 02-the-board/02-03-PLAN.md (Code View)
+Stopped at: Completed 02-the-board/02-04-PLAN.md (Gap Closure: Playback Bug Fixes)
 Resume file: None
