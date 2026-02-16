@@ -4,50 +4,47 @@
 
 See: .planning/PROJECT.md (updated 2026-02-15)
 
-**Core value:** Anyone in the family can make music in 10 seconds by tapping a pad
+**Core value:** Anyone in the family can make music in 10 seconds — Bonki AI helps them go deeper
 **Current focus:** Phase 1 — The Pad
 
 ## Current Position
 
 Phase: 1 of 4 (The Pad)
-Plan: 0 of 3 in current phase
-Status: Ready to execute
-Last activity: 2026-02-15 — GSD planning complete, Strudel API researched
+Plan: 0 of 4 in current phase
+Status: Discuss phase COMPLETE. GSD structure configured. Ready for /gsd:plan-phase 1.
+Last activity: 2026-02-15 — Discuss phase complete. GSD v1.20 installed and verified.
 
 Progress: [..........] 0%
 
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
-
 ## Accumulated Context
 
-### Decisions
+### Decisions (from discuss phase — see phases/01-the-pad/01-CONTEXT.md for full detail)
 
-- Project init: Wrap Strudel via @strudel/web, don't fork
-- Project init: Vite + vanilla JS stack (no framework)
-- Project init: Dark theme, touch-first design
-- Project init: HOMIE AI in Phase 3 (pads work without AI first)
-- Project init: Pre-built presets provide instant gratification before AI exists
+- Visual: Teenage Engineering + pixel art + Ghibli warmth
+- Interaction: Hybrid step sequencer + pads, tabbed (SEQUENCE | PADS | AI)
+- Users: Whole family, layered complexity. MVP = kids beat without help.
+- AI: Bonki (Scottish Fold cat tribute), DJ partner, character + chat
+- Sound: Eclectic — 808s to weird stuff
+- Sequencer: 8-step default, expandable to 16
+- Bonki: Present from Phase 1, vibing in corner
+- Ecosystem: PWA on GitHub Pages + local dev. Mac, iPad, Linux, Watch (notifications)
+- Access: One URL, always works. Zero friction.
 
 ### Technical Reference
 
-- Strudel install: `~/strudel/`
-- Key API: `initStrudel()`, `evaluate(code)`, `hush()`, `Pattern.prototype.play()`
-- Drum sounds: bd, sd, hh, oh, cp, cr, rd, ht, mt, lt, cb, tb
-- Synths: sine, sawtooth, square, triangle + FM + wavetable (AKWF)
-- Sound banks: `.bank("RolandTR808")`, `.bank("RolandTR909")`
+- Strudel: `~/strudel/`, API: initStrudel(), evaluate(), hush()
+- Sounds: bd, sd, hh, oh, cp, cr, rd, ht, mt, lt, cb, tb + synths
+- Banks: .bank("RolandTR808"), .bank("RolandTR909")
+- Character spec: .planning/CHARACTER.md
+- Reference photos: homie-beats/reference/
 
 ### Blockers/Concerns
 
-- Claude API key needed for Phase 3 (HOMIE AI). Can use pre-built suggestions as fallback.
-- AGPL-3.0 license: all derivative work must be open source (fine for family project)
+- Claude API key needed for Phase 3
+- Pixel art Bonki needs to be created (CSS pixel art or sprite sheet — decide in Plan 01-04)
 
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: GSD planning complete, ready to execute Phase 1
+Stopped at: GSD installed, structure verified. Next: /gsd:plan-phase 1 then /gsd:execute-phase 1
 Resume file: None

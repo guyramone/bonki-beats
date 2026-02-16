@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A visual beatpad/synthboard web app that wraps Strudel's live coding engine with a family-friendly interface. Instead of typing code to make music, users tap pads, twist knobs, and chat with an AI sidekick (HOMIE AI) that helps them build jams in real time. The code still runs underneath — users can peek at it, learn from it, and eventually write their own.
+A visual beatpad/synthboard PWA that wraps Strudel's live coding engine with a Teenage Engineering-inspired interface. Hybrid step sequencer + pad triggers with tabbed navigation. Features Bonki — a pixel art Scottish Fold cat DJ partner powered by AI — who helps the family build jams through natural language chat. Designed for the whole Ramone household: Macs, iPads, Linux desktop, with Watch notifications.
 
 ## Core Value
 
-Anyone in the family can make music in 10 seconds by tapping a pad — and HOMIE AI helps them go deeper.
+Anyone in the family can make music in 10 seconds by tapping a pad — and Bonki AI helps them go deeper.
 
 ## Requirements
 
@@ -16,14 +16,16 @@ Anyone in the family can make music in 10 seconds by tapping a pad — and HOMIE
 
 ### Active
 
-- [ ] Beatpad grid with tappable pads that trigger Strudel sounds
-- [ ] Transport controls (play, stop, BPM slider)
-- [ ] Preset patterns that sound good immediately (instant gratification)
-- [ ] HOMIE AI chat sidebar that suggests patterns and teaches music concepts
-- [ ] Pattern code is visible and editable (learn by seeing what the pads generate)
-- [ ] Works on iPad via Safari (touch-optimized, responsive layout)
-- [ ] Serves over local network so any device in the house can use it
-- [ ] Sound bank browser (drums, synths, effects)
+- [ ] Hybrid interaction: step sequencer (8-step, expandable to 16) + live pad triggers
+- [ ] Tabbed navigation: SEQUENCE | PADS | AI
+- [ ] Teenage Engineering aesthetic: minimal, purposeful, whimsical. Pixel art + Ghibli warmth.
+- [ ] Bonki character: pixel art Scottish Fold cat DJ, present from Phase 1, reacts to music
+- [ ] Bonki AI: DJ partner chat sidebar, generates patterns from natural language
+- [ ] Eclectic sound palette: 808s, acoustic, synths, weird sounds — something for every mood
+- [ ] PWA: installable on iPad home screen, works offline after first load
+- [ ] Cross-platform: Mac, iPad, Linux desktop via GitHub Pages. Watch notifications.
+- [ ] Progressive complexity: simple surface, depth underneath for those who dig
+- [ ] Pattern code visible and editable (learn by seeing what pads generate)
 
 ### Out of Scope
 
@@ -32,37 +34,40 @@ Anyone in the family can make music in 10 seconds by tapping a pad — and HOMIE
 - User accounts/login — local family tool, no auth needed
 - Audio file export — v1 is live performance only
 - Custom sample upload — using Strudel's built-in sample library
+- Apple Watch control surface — Watch is notifications only
 
 ## Context
 
-- Strudel is already installed at `~/strudel/` and running
-- The `@strudel/web` package exposes: `initStrudel()`, `evaluate(code)`, `hush()`, `Pattern.prototype.play()`
-- Strudel's audio engine handles all synthesis, sampling, and scheduling
-- The wrapper only needs to: build pattern strings → feed to `evaluate()` → display state
-- HOMIE AI can use the Claude API (or a local prompt) to generate Strudel patterns from natural language
-- Family already uses Strudel for live coding music — this makes it accessible to non-coders
-- iPad is primary consumption device; touch interactions must feel responsive and musical
-- Built-in drum machine abbreviations: bd, sd, hh, oh, cp, cr, rd, ht, mt, lt, cb, tb
-- Built-in synths: sine, sawtooth, square, triangle, plus FM synthesis and wavetable (AKWF)
+- Strudel installed at `~/strudel/`, @strudel/web package exposes full programmatic API
+- Key API: `initStrudel()`, `evaluate(code)`, `hush()`, `Pattern.prototype.play()`
+- Bonki is based on the family's late Scottish Fold cat. All black, fold ears, big golden eyes.
+- Reference photos in `homie-beats/reference/`. Character spec in `.planning/CHARACTER.md`
+- Teenage Engineering design language: functional minimalism, unexpected playful visuals, clean typography
+- MVP test (from Chris): "Kids build a beat without help"
+- Family devices: macOS (Apple Silicon), iPads, Apple Watch, Linux gaming desktop
+- Deployment: GitHub Pages (hosted) + local dev (hacking). Both always available.
 
 ## Constraints
 
-- **Engine**: Must use Strudel's `@strudel/web` — no custom audio engine
-- **Stack**: Vite + vanilla JS (or lightweight framework). Keep bundle small and fast.
-- **Touch**: All interactions must work on iPad touchscreen. No hover-dependent UI.
-- **Network**: Must serve over LAN with `--host` flag for multi-device access
-- **License**: AGPL-3.0 (inherits from Strudel). All derivative work must be open source.
-- **AI**: HOMIE AI chat needs an API key for Claude or can work with pre-built pattern suggestions in v1
+- **Engine**: Strudel @strudel/web — no custom audio engine
+- **Stack**: Vite + vanilla JS. Keep bundle small and fast.
+- **Touch**: All interactions work on iPad touchscreen. Min 48px targets.
+- **Ecosystem**: PWA on GitHub Pages = works everywhere with a browser. No server dependency.
+- **License**: AGPL-3.0 (inherits from Strudel). Open source.
+- **AI**: Claude API for Bonki chat (Phase 3). Pre-built suggestions as fallback.
+- **Design**: TE-inspired. NOT generic dark-mode music app. NOT childish. NOT sterile.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Wrap Strudel, don't fork it | Leverage existing audio engine, stay upstream-compatible | -- Pending |
-| Beatpad + code view hybrid | Show code generated by pads so users learn what patterns look like | -- Pending |
-| HOMIE AI as chat sidebar | Natural language → Strudel patterns is the killer feature | -- Pending |
-| Vite + vanilla JS | Fast, no framework overhead, Strudel itself is vanilla JS | -- Pending |
-| Pre-built pattern presets for v1 | Instant gratification without AI dependency | -- Pending |
+| Wrap Strudel, don't fork | Leverage existing engine, stay upstream-compatible | -- Pending |
+| Teenage Engineering + pixel art + Ghibli | Chris's vision: purposeful whimsy, not obnoxious | -- Pending |
+| Hybrid sequencer + pads, tabbed | Full family: simple pads for kids, sequencer for depth | -- Pending |
+| Bonki as mascot/AI character | Tribute to family's late Scottish Fold cat | -- Pending |
+| PWA on GitHub Pages | Works on all family devices, zero friction, free hosting | -- Pending |
+| 8-step default, expandable to 16 | Progressive disclosure: simple start, depth when ready | -- Pending |
+| Bonki present from Phase 1 | Sets the tone immediately, even before AI chat exists | -- Pending |
 
 ---
-*Last updated: 2026-02-15 after initial project definition*
+*Last updated: 2026-02-15 after discuss phase with Chris*

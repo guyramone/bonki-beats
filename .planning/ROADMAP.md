@@ -2,88 +2,111 @@
 
 ## Overview
 
-Four phases that take us from "tap a pad, hear a sound" to "chat with HOMIE AI and build a jam together." Phase 1 is the skeleton — a working beatpad that makes noise. Each phase adds a layer: presets, code view, AI chat. By the end, HOMIE Beats is a full creative instrument the whole family can play.
+Four phases building from "tap a pad, hear a sound, see Bonki vibe" to "chat with Bonki AI and jam together as a family." Phase 1 delivers a working instrument with TE-inspired design, tabbed navigation, and Bonki vibing in the corner. Each phase adds a layer. By Phase 4, HOMIE Beats is deployed as a PWA the whole household uses daily.
 
 ## Phases
 
-- [ ] **Phase 1: The Pad** - Working 4x4 beatpad with Strudel engine, play/stop, touch-ready
-- [ ] **Phase 2: The Board** - Presets, BPM control, code view, pattern layering
-- [ ] **Phase 3: The Brain** - HOMIE AI chat sidebar, natural language → patterns
-- [ ] **Phase 4: The Polish** - AI teaching mode, effects suggestions, family jam UX
+- [ ] **Phase 1: The Pad** - Working instrument: tabbed sequencer + pads, Bonki sprite, TE aesthetic, PWA shell
+- [ ] **Phase 2: The Board** - Presets, BPM control, code view, eclectic sound banks
+- [ ] **Phase 3: The Brain** - Bonki AI chat sidebar, natural language pattern generation
+- [ ] **Phase 4: The Polish** - AI teaching mode, smart suggestions, GitHub Pages deploy
 
 ## Phase Details
 
 ### Phase 1: The Pad
-**Goal**: A working 4x4 beatpad that triggers Strudel sounds, with play/stop and dark theme
+**Goal**: A working instrument with tabbed navigation (SEQUENCE | PADS), Bonki pixel sprite vibing, TE-inspired design. PWA-ready. Kids can build a beat without help.
 **Depends on**: Nothing (first phase)
-**Requirements**: PAD-01, PAD-02, PAD-03, PAD-05, CTL-01, CTL-04, ENG-01, ACC-01, ACC-02, ACC-03, ACC-04, ACC-05
+**Requirements**: PAD-01, PAD-02, PAD-03, PAD-05, CTL-01, CTL-04, ENG-01, ACC-01 through ACC-05, CHAR-01
 **Success Criteria** (what must be TRUE):
-  1. A 4x4 grid of pads is visible on screen with dark theme
-  2. Tapping any pad triggers a sound via Strudel
-  3. Play button starts a looping pattern, Stop/Hush stops it
-  4. Layout works on iPad Safari with touch-sized targets
-  5. Serves over LAN with --host flag
-**Plans**: 3 plans
+  1. Tabbed UI with SEQUENCE and PADS views, TE-inspired dark aesthetic
+  2. SEQUENCE tab: 8-step sequencer grid with 4 sound rows, toggleable cells
+  3. PADS tab: 4x4 pad grid for live triggering
+  4. Play/stop/hush transport controls work
+  5. Pixel art Bonki sits in corner, idle animation, reacts to playback
+  6. Layout works on iPad Safari, Mac, and Linux desktop (responsive, touch targets 48px+)
+  7. PWA manifest and service worker shell in place (installable on iPad)
+  8. Serves over LAN with --host
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: Scaffold Vite project, install @strudel/web, initialize audio engine
-- [ ] 01-02: Build 4x4 pad grid UI with CSS Grid, dark theme, tap handlers
-- [ ] 01-03: Wire pads to Strudel evaluate(), add play/stop/hush, test on iPad
+- [ ] 01-01: Scaffold Vite project, install @strudel/web, PWA manifest, service worker shell
+- [ ] 01-02: Build tabbed UI shell (SEQUENCE | PADS | AI placeholder), TE-inspired CSS, responsive layout
+- [ ] 01-03: Build 8-step sequencer + 4x4 pad grid, wire to Strudel evaluate(), transport controls
+- [ ] 01-04: Create Bonki pixel art sprite (CSS or canvas), idle + vibing animations, integrate into UI
+
+<task type="checkpoint:human-verify" gate="blocking">
+  <what-built>HOMIE Beats Phase 1 — working instrument with sequencer, pads, Bonki, TE design</what-built>
+  <how-to-verify>
+    1. Open http://localhost:5555 on Mac — verify TE-inspired design, dark theme, tabs work
+    2. SEQUENCE tab: toggle cells in 8-step grid, hit play, hear pattern loop
+    3. PADS tab: tap pads, hear sounds trigger
+    4. Bonki: visible in corner, idle animation, reacts when music plays
+    5. HUSH button: kills all sound immediately
+    6. Open on iPad via LAN IP — verify touch works, layout is responsive, targets are big enough
+    7. "Add to Home Screen" on iPad — verify PWA installs with icon
+    8. Hand iPad to Moony or Nene — can they build a beat without instruction?
+  </how-to-verify>
+  <resume-signal>Type "approved" or describe issues</resume-signal>
+</task>
 
 ---
 
 ### Phase 2: The Board
-**Goal**: Feels like a real instrument — presets, BPM control, layered patterns, code view
+**Goal**: Feels like a real instrument — presets, BPM control, eclectic sound banks, code view panel
 **Depends on**: Phase 1
 **Requirements**: PAD-04, PAD-06, CTL-02, CTL-03, ENG-02, ENG-04, ENG-05
 **Success Criteria** (what must be TRUE):
-  1. BPM slider changes tempo in real time
-  2. At least 5 preset patterns load and play immediately
-  3. Code view panel shows Strudel code updating as pads are toggled
-  4. Multiple pads can be active simultaneously (layered pattern)
+  1. BPM slider changes tempo in real time (60-180)
+  2. At least 5 eclectic preset patterns load and play immediately
+  3. Code view panel shows live Strudel code as pads/sequencer are toggled
+  4. Multiple layers can be active simultaneously
   5. Volume control works
+  6. 8-step ↔ 16-step toggle works
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Add BPM slider, volume control, and real-time pattern rebuilding
-- [ ] 02-02: Build preset system — 5+ genre presets (hip-hop, lo-fi, techno, ambient, weird)
-- [ ] 02-03: Add code view panel that displays and updates Strudel code in real time
+- [ ] 02-01: BPM slider, volume control, 8/16 step toggle, real-time pattern rebuilding
+- [ ] 02-02: Preset system — 5+ eclectic presets (hip-hop, lo-fi, techno, ambient, weird)
+- [ ] 02-03: Code view panel showing live Strudel code, read-only in this phase
 
 ---
 
 ### Phase 3: The Brain
-**Goal**: HOMIE AI chat sidebar — natural language music creation and pattern explanation
+**Goal**: Bonki AI chat sidebar — natural language music creation and pattern explanation
 **Depends on**: Phase 2
 **Requirements**: AI-01, AI-02, AI-03, ENG-03
 **Success Criteria** (what must be TRUE):
-  1. Chat sidebar is visible and functional
-  2. Typing "make a chill beat" generates and plays a valid Strudel pattern
-  3. Asking "what does this pattern do?" gets a plain English explanation
-  4. Code view is editable — changes apply when submitted
-  5. AI responses include runnable pattern suggestions
+  1. AI tab opens Bonki chat sidebar with message history
+  2. "make a chill beat" generates and plays a valid Strudel pattern
+  3. "what does this pattern do?" gets a plain English explanation in Bonki's voice
+  4. Code view becomes editable — changes apply on submit
+  5. Bonki character animates during AI thinking (eyes half-closed, slight sway)
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Build chat sidebar UI with message history and input
-- [ ] 03-02: Connect to Claude API — prompt engineering for Strudel pattern generation
-- [ ] 03-03: Wire AI-generated patterns to evaluate(), add "explain this pattern" feature
+- [ ] 03-01: Build chat sidebar UI with Bonki avatar, message history, input
+- [ ] 03-02: Claude API integration — prompt engineering for Strudel pattern generation in Bonki's voice
+- [ ] 03-03: Wire AI patterns to evaluate(), "explain pattern" feature, editable code view
 
 ---
 
 ### Phase 4: The Polish
-**Goal**: Teaching mode, smart suggestions, and family jam UX refinements
+**Goal**: Deploy to GitHub Pages, smart AI suggestions, teaching mode, family jam UX
 **Depends on**: Phase 3
-**Requirements**: AI-04, AI-05
+**Requirements**: AI-04, AI-05, DEPLOY-01, DEPLOY-02
 **Success Criteria** (what must be TRUE):
-  1. HOMIE suggests pattern modifications based on what's currently playing
-  2. HOMIE can teach music concepts when asked (BPM, time signatures, etc.)
-  3. UI feels polished and premium — animations, transitions, visual feedback
-  4. The whole family can use it without instruction
-**Plans**: 2 plans
+  1. HOMIE Beats is live on GitHub Pages at a public URL
+  2. PWA installs correctly from the hosted URL on all family devices
+  3. Bonki suggests pattern modifications based on what's currently playing
+  4. Bonki can teach music concepts when asked
+  5. Watch notification fires when someone starts a jam session (stretch goal)
+  6. The whole family can use it without instruction
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Add contextual AI suggestions based on current pattern state
-- [ ] 04-02: Teaching mode — HOMIE explains music concepts, UI polish pass
+- [ ] 04-01: GitHub Pages deployment config, production build, service worker caching
+- [ ] 04-02: Contextual AI suggestions, teaching mode (BPM, time signatures, etc.)
+- [ ] 04-03: Final polish pass — animations, transitions, cross-device testing, family jam test
 
 ---
 
@@ -91,7 +114,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. The Pad | 0/3 | Not started | - |
+| 1. The Pad | 0/4 | Not started | - |
 | 2. The Board | 0/3 | Not started | - |
 | 3. The Brain | 0/3 | Not started | - |
-| 4. The Polish | 0/2 | Not started | - |
+| 4. The Polish | 0/3 | Not started | - |
