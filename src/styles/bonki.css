@@ -1,0 +1,101 @@
+/* ============================================================
+   Bonki — DJ Cat Companion Animations
+   Idle: gentle breathing sway + periodic slow blink
+   Vibing: rhythmic head bob synced to musical tempo feel
+   ============================================================ */
+
+/* --- Container --- */
+
+.bonki {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.bonki svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+
+/* --- Idle State: Gentle Breathing + Periodic Blink --- */
+
+.bonki-idle {
+  animation: bonki-breathe 4s ease-in-out infinite;
+}
+
+.bonki-idle .bonki-eyes {
+  animation: bonki-blink 4s ease-in-out infinite;
+}
+
+@keyframes bonki-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes bonki-blink {
+  0%, 88%, 100% { opacity: 1; }
+  92%, 96% { opacity: 0; }
+}
+
+
+/* --- Vibing State: Rhythmic Head Bob (120 BPM feel) --- */
+
+.bonki-vibing {
+  animation: bonki-vibe 500ms ease-in-out infinite;
+}
+
+.bonki-vibing .bonki-eyes {
+  animation: none;
+  opacity: 1;
+  transform: scaleY(1.05);
+}
+
+@keyframes bonki-vibe {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-1px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+
+
+/* --- Hover State (future interactivity teaser) --- */
+
+.bonki:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+/* Override animation transform on hover */
+.bonki-idle:hover {
+  animation: none;
+  transform: scale(1.1);
+}
+
+.bonki-vibing:hover {
+  animation: none;
+  transform: scale(1.1);
+}
+
+
+/* --- Tablet: slightly larger Bonki --- */
+
+@media (min-width: 768px) {
+  .bonki {
+    width: 52px;
+    height: 52px;
+  }
+}
