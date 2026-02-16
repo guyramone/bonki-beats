@@ -563,6 +563,46 @@ button {
   transform: scale(0.9);
 }
 
+/* Per-row active colors */
+.sequencer-cell.active[data-row="0"] { background: var(--accent-warm); }       /* Kick — terracotta */
+.sequencer-cell.active[data-row="1"] { background: var(--accent-cool); }       /* Snare — sage */
+.sequencer-cell.active[data-row="2"] { background: var(--accent-primary); }    /* Hi-hat — gold */
+.sequencer-cell.active[data-row="3"] { background: #c678dd; }                  /* Clap — purple */
+
+/* Beat position flash */
+.sequencer-cell.on-beat {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+  transition: box-shadow 0.05s ease;
+}
+
+/* --- Sequencer Header & Clear Button --- */
+
+.sequencer-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.sequencer-clear-btn {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  background: none;
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sequencer-clear-btn:hover {
+  color: var(--accent-warm);
+  border-color: var(--accent-warm);
+}
+
 
 /* --- Pad Grid --- */
 

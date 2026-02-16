@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { evaluate, hush } from '@strudel/web';
 import { initAudio } from './main.jsx';
 import TabBar from './components/TabBar.jsx';
@@ -40,6 +40,10 @@ function App() {
   const [bpm, setBpm] = useState(120);
   const [volume, setVolume] = useState(1);
   const [stepCount, setStepCount] = useState(8);
+
+  // --- Beat Position State ---
+  const [beatStep, setBeatStep] = useState(null);
+  const beatIntervalRef = useRef(null);
 
   // --- Code View State ---
   const [flashInfo, setFlashInfo] = useState(null);
@@ -164,6 +168,18 @@ function App() {
     hush();
     setIsPlaying(false);
     // Keep layers — stop doesn't clear
+  };
+
+  const handleClearGrid = () => {
+    setGrid(DEFAULT_GRID);
+    // Remove the sequencer layer since all cells are now off
+    setLayers(prevLayers => {
+      const updatedLayers = removeLayer(prevLayers, 'sequencer');
+      if (isPlaying) {
+        evaluateAllLayers(updatedLayers, volume);
+      }
+      return updatedLayers;
+    });
   };
 
   const handleHush = () => {
@@ -324,6 +340,35 @@ function App() {
     }
   };
 
+  // --- Beat Position Tracking ---
+  useEffect(() => {
+    if (isPlaying) {
+      let step = 0;
+      const msPerStep = 60000 / bpm; // Each step is one beat subdivision
+
+      // Clear any existing interval
+      if (beatIntervalRef.current) clearInterval(beatIntervalRef.current);
+
+      setBeatStep(0);
+      beatIntervalRef.current = setInterval(() => {
+        step = (step + 1) % stepCount;
+        setBeatStep(step);
+      }, msPerStep);
+
+      return () => {
+        clearInterval(beatIntervalRef.current);
+        beatIntervalRef.current = null;
+      };
+    } else {
+      // Not playing — clear beat indicator
+      if (beatIntervalRef.current) {
+        clearInterval(beatIntervalRef.current);
+        beatIntervalRef.current = null;
+      }
+      setBeatStep(null);
+    }
+  }, [isPlaying, bpm, stepCount]);
+
   // --- Code View: derive display code from layers (no volume wrapping — show clean code) ---
   const displayCode = composeLayerCode(layers);
 
@@ -343,7 +388,14 @@ function App() {
               onPresetSelect={handlePresetSelect}
               onPresetAdd={handlePresetAdd}
             />
-            <Sequencer key={stepCount} grid={grid} onToggleCell={handleToggleCell} stepCount={stepCount} />
+            <Sequencer
+              key={stepCount}
+              grid={grid}
+              onToggleCell={handleToggleCell}
+              stepCount={stepCount}
+              onClear={handleClearGrid}
+              beatStep={beatStep}
+            />
           </>
         );
       case 'PADS':
