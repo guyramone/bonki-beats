@@ -43,7 +43,8 @@ function App() {
 
   // --- Beat Position State ---
   const [beatStep, setBeatStep] = useState(null);
-  const beatIntervalRef = useRef(null);
+  const rafRef = useRef(null);
+  const playStartRef = useRef(null);
 
   // --- Code View State ---
   const [flashInfo, setFlashInfo] = useState(null);
@@ -340,30 +341,29 @@ function App() {
     }
   };
 
-  // --- Beat Position Tracking ---
+  // --- Beat Position Tracking (rAF — drift-free) ---
   useEffect(() => {
     if (isPlaying) {
-      let step = 0;
-      const msPerStep = 60000 / bpm; // Each step is one beat subdivision
+      playStartRef.current = performance.now();
+      const msPerStep = 60000 / bpm;
 
-      // Clear any existing interval
-      if (beatIntervalRef.current) clearInterval(beatIntervalRef.current);
+      const tick = () => {
+        const elapsed = performance.now() - playStartRef.current;
+        const currentStep = Math.floor(elapsed / msPerStep) % stepCount;
+        setBeatStep(currentStep);
+        rafRef.current = requestAnimationFrame(tick);
+      };
 
-      setBeatStep(0);
-      beatIntervalRef.current = setInterval(() => {
-        step = (step + 1) % stepCount;
-        setBeatStep(step);
-      }, msPerStep);
+      rafRef.current = requestAnimationFrame(tick);
 
       return () => {
-        clearInterval(beatIntervalRef.current);
-        beatIntervalRef.current = null;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       };
     } else {
-      // Not playing — clear beat indicator
-      if (beatIntervalRef.current) {
-        clearInterval(beatIntervalRef.current);
-        beatIntervalRef.current = null;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
       setBeatStep(null);
     }
