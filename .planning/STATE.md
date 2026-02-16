@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-15)
 
 **Core value:** Anyone in the family can make music in 10 seconds — Bonki AI helps them go deeper
-**Current focus:** Phase 1 — The Pad
+**Current focus:** Phase 2 — The Board
 
 ## Current Position
 
-Phase: 1 of 4 (The Pad)
-Plan: 4 of 4 in current phase
-Status: Phase 1 complete
-Last activity: 2026-02-16 — Completed 01-04-PLAN.md (Bonki Character)
+Phase: 2 of 4 (The Board)
+Plan: 1 of 3 in current phase
+Status: Executing Phase 2
+Last activity: 2026-02-16 — Completed 02-01-PLAN.md (Controls & Layers)
 
-Progress: [##########] 100% (Phase 1)
+Progress: [###-------] 33% (Phase 2)
 
 ## Accumulated Context
 
@@ -37,6 +37,10 @@ Progress: [##########] 100% (Phase 1)
 - **Plan 01-03:** Pad taps replace current playback rather than layering (simpler mental model for kids). HUSH syncs both hush() and isPlaying UI state. Transport accepts children prop for composability.
 - **Plan 01-04:** SVG pixel art approach for Bonki (rects in 32x32 viewBox) -- scalable, maintainable, no external file dependency. Added children prop to Transport for composable Bonki placement.
 
+### Execution Decisions (Phase 2)
+
+- **Plan 02-01:** HUSH clears all layers + stops (panic button). Transport HUSH handler lifted to App.jsx (onHush prop). Grid always 16 wide, stepCount slices view. Volume throttled 100ms, BPM not throttled. Pads add as layers instead of replacing playback.
+
 ### Technical Reference
 
 - Strudel: `~/strudel/`, API: initStrudel(), evaluate(), hush()
@@ -57,9 +61,10 @@ Progress: [##########] 100% (Phase 1)
 | 01-02 | 125s (2m 5s) | 2 | 3 | 2026-02-16 |
 | 01-03 | 207s (3m 27s) | 2 | 6 | 2026-02-16 |
 | 01-04 | 205s (3m 25s) | 2 | 5 | 2026-02-16 |
+| 02-01 | 402s (6m 42s) | 2 | 10 | 2026-02-16 |
 
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 01-the-pad/01-03-PLAN.md (Sequencer + Pads + Transport) and 01-04-PLAN.md (Bonki Character) in parallel
+Stopped at: Completed 02-the-board/02-01-PLAN.md (Controls & Layers)
 Resume file: None
