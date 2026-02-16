@@ -153,7 +153,7 @@ button {
 .split-pane-code {
   flex-shrink: 0;
   height: 200px; /* Fixed height on mobile — scrollable code panel below instrument */
-  overflow: hidden;
+  overflow: auto; /* WAS: hidden — blocked scrolling, truncated code */
   padding: 0 var(--space-md) var(--space-sm);
 }
 
@@ -712,6 +712,10 @@ button {
   .controls-strip input[type="range"] {
     width: 120px;
   }
+
+  .bonki-speech {
+    right: 80px;
+  }
 }
 
 /* Desktop (1024px+) */
@@ -867,7 +871,7 @@ button {
 .bonki-speech {
   position: fixed;
   bottom: 70px;
-  right: 16px;
+  right: 60px; /* Shift left to align with Bonki in transport */
   background: var(--bg-secondary);
   border: 1px solid var(--accent-primary);
   border-radius: var(--radius-md);
@@ -878,13 +882,14 @@ button {
   z-index: 20;
   animation: speech-pop 0.3s ease;
   max-width: 200px;
+  pointer-events: none; /* Don't block clicks on things below */
 }
 
 .bonki-speech::after {
   content: '';
   position: absolute;
   bottom: -6px;
-  right: 20px;
+  right: 16px; /* Centered under bubble near Bonki */
   width: 0;
   height: 0;
   border-left: 6px solid transparent;

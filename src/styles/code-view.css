@@ -105,7 +105,8 @@
   border-radius: 2px;
   background: transparent;
   transition: background 0.15s ease;
-  white-space: pre;
+  white-space: pre-wrap; /* WAS: pre — caused horizontal overflow */
+  word-break: break-all; /* Break very long strings that don't have spaces */
 }
 
 .code-line-empty {

@@ -32,7 +32,15 @@ function LayerChips({ layers, onRemove, onToggleSolo }) {
             key={layer.id}
             className={`layer-chip${isSoloed ? ' soloed' : ''}${isDimmed ? ' dimmed' : ''}`}
           >
-            <span className={`layer-chip-dot type-${layer.type}`} />
+            <span
+              className="layer-chip-dot"
+              style={{
+                background: layer.type === 'sequencer' ? 'var(--accent-cool)'
+                  : layer.type === 'pad' ? 'var(--accent-warm)'
+                  : layer.type === 'preset' ? 'var(--accent-primary)'
+                  : 'var(--text-tertiary)'
+              }}
+            />
             <span
               className="layer-chip-name"
               onClick={() => onToggleSolo(layer.id)}
