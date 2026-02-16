@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 02-the-board
 source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md]
 started: 2026-02-16T19:00:00Z
-updated: 2026-02-16T20:10:00Z
+updated: 2026-02-16T22:30:00Z
 ---
 
 ## Current Test
@@ -103,7 +103,7 @@ skipped: 0
 ## Gaps
 
 - truth: "BPM slider changes tempo in real time during playback (60-180)"
-  status: failed
+  status: resolved
   reason: "User reported: BPM slider stops the music that is playing and is not real time"
   severity: major
   test: 1
@@ -115,7 +115,7 @@ skipped: 0
     - "After setcps, call evaluateAllLayers(layers, volume) to resume playback at new tempo"
 
 - truth: "8/16 step toggle updates grid display and pattern correctly"
-  status: failed
+  status: resolved
   reason: "User reported: it continues to play and can hear the beats doubling but the pads are showing blank still"
   severity: major
   test: 3
@@ -129,7 +129,7 @@ skipped: 0
     - "Force Sequencer re-render on stepCount change, possibly via key prop or ensuring Sequencer properly responds to stepCount prop changes"
 
 - truth: "Code view panel shows full Strudel code without truncation"
-  status: failed
+  status: resolved
   reason: "User reported: the code shown is being truncated off and we can't see the full code"
   severity: major
   test: 12
@@ -144,7 +144,7 @@ skipped: 0
     - "Change .code-line white-space to pre-wrap for line wrapping"
 
 - truth: "Layer chip color dots differentiate by type (sage=sequencer, terracotta=pad, gold=preset)"
-  status: failed
+  status: resolved
   reason: "User reported: all chip dots appear the same color regardless of layer type"
   severity: cosmetic
   test: 5
@@ -158,7 +158,7 @@ skipped: 0
     - "Debug specificity or type string matching, ensure colors apply"
 
 - truth: "Bonki speech bubble positioned near Bonki character"
-  status: failed
+  status: resolved
   reason: "User reported: speech bubble positioned at bottom-right corner instead of floating near Bonki"
   severity: cosmetic
   test: 11
@@ -172,7 +172,7 @@ skipped: 0
     - "Move BonkiSpeech inside Transport/Bonki wrapper with relative positioning, or use absolute positioning relative to Bonki's container"
 
 - truth: "HUSH clears sequencer grid cells in addition to stopping sound and clearing layers"
-  status: failed
+  status: resolved
   reason: "User reported: hush works but sequencer pads are still lit"
   severity: minor
   test: 6
@@ -184,7 +184,7 @@ skipped: 0
     - "Add setGrid(DEFAULT_GRID) to handleHush"
 
 - truth: "Sequencer grid should have a way to clear all toggled cells"
-  status: failed
+  status: resolved
   reason: "User reported: there should be a way to clear the sequencer buttons"
   severity: minor
   test: 0
@@ -199,7 +199,7 @@ skipped: 0
     - "Create handleClearGrid in App that resets grid and removes sequencer layer"
 
 - truth: "Sequencer cells should flash on the beat and use different colors per sound row"
-  status: failed
+  status: resolved
   reason: "User reported: sequencer buttons should flash and should be different colors"
   severity: minor
   test: 0
