@@ -18,6 +18,19 @@ export const SOUNDS = [
   { name: 'Cowbell', sample: 'RolandTR808_cb' },
 ];
 
+// Per-row colors matching the sequencer grid CSS
+// Index matches SOUNDS array index
+export const ROW_COLORS = [
+  '#d97757',  // 0: Kick — terracotta (--accent-warm)
+  '#6b9080',  // 1: Snare — sage (--accent-cool)
+  '#f5a623',  // 2: Hi-Hat — gold (--accent-primary)
+  '#5bc0de',  // 3: Open Hat — cyan
+  '#c678dd',  // 4: Clap — purple
+  '#e06c75',  // 5: Ride — rose
+  '#61afef',  // 6: Tom — blue
+  '#e5c07b',  // 7: Cowbell — amber
+];
+
 // --- Sequencer Grid Defaults ---
 
 export const STEP_COUNT = 8;
