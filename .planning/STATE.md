@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 ## Current Position
 
 Phase: 1 of 4 (The Pad)
-Plan: 2 of 4 in current phase
-Status: Executing Phase 1 plans
-Last activity: 2026-02-16 — Completed 01-02-PLAN.md (Tabbed UI Shell + TE Design System)
+Plan: 4 of 4 in current phase
+Status: Phase 1 complete
+Last activity: 2026-02-16 — Completed 01-04-PLAN.md (Bonki Character)
 
-Progress: [#####.....] 50%
+Progress: [##########] 100% (Phase 1)
 
 ## Accumulated Context
 
@@ -34,6 +34,8 @@ Progress: [#####.....] 50%
 
 - **Plan 01-01:** Updated vite-plugin-pwa to v1.2.0 for Vite 6 compatibility (auto-fix, Rule 3 - blocking issue)
 - **Plan 01-02:** Used HTML entities for transport icons instead of icon library (zero new dependencies). Added ARIA toolbar/tabpanel roles for accessibility beyond plan spec.
+- **Plan 01-03:** Pad taps replace current playback rather than layering (simpler mental model for kids). HUSH syncs both hush() and isPlaying UI state. Transport accepts children prop for composability.
+- **Plan 01-04:** SVG pixel art approach for Bonki (rects in 32x32 viewBox) -- scalable, maintainable, no external file dependency. Added children prop to Transport for composable Bonki placement.
 
 ### Technical Reference
 
@@ -46,7 +48,6 @@ Progress: [#####.....] 50%
 ### Blockers/Concerns
 
 - Claude API key needed for Phase 3
-- Pixel art Bonki needs to be created (CSS pixel art or sprite sheet — decide in Plan 01-04)
 
 ## Performance Metrics
 
@@ -54,9 +55,10 @@ Progress: [#####.....] 50%
 |------|----------|-------|-------|-----------|
 | 01-01 | 227s (3m 47s) | 2 | 8 | 2026-02-16 |
 | 01-02 | 125s (2m 5s) | 2 | 3 | 2026-02-16 |
+| 01-04 | 205s (3m 25s) | 2 | 5 | 2026-02-16 |
 
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 01-the-pad/01-02-PLAN.md (Tabbed UI Shell + TE Design System)
+Stopped at: Completed 01-the-pad/01-04-PLAN.md (Bonki Character)
 Resume file: None
