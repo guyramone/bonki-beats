@@ -7,11 +7,13 @@ import './styles/index.css';
 // Audio initialization state (module-level)
 let initialized = false;
 let strudelRepl = null;
+let analyserNode = null;
 
 /**
  * Initialize Strudel audio engine with drum machine samples.
  * MUST be called from user gesture (click/tap) due to browser autoplay policy.
  * Stores the repl reference for scheduler access (audio-accurate beat tracking).
+ * Sets up an AnalyserNode tap for real-time audio visualization.
  * @returns {Promise<boolean>} - true if initialized successfully
  */
 export async function initAudio() {
@@ -29,6 +31,27 @@ export async function initAudio() {
         await samples('https://raw.githubusercontent.com/felixroos/dough-samples/main/tidal-drum-machines.json');
         console.log('Samples loaded successfully');
       }
+    });
+
+    // Set up audio analysis tap for Visualizer.
+    // Override audioContext.destination with a GainNode that splits the signal
+    // to both the real destination and our AnalyserNode. This intercepts all
+    // future audio routing transparently.
+    const audioCtx = strudelRepl.scheduler.audioContext;
+    const realDestination = audioCtx.destination;
+
+    analyserNode = audioCtx.createAnalyser();
+    analyserNode.fftSize = 512;
+    analyserNode.smoothingTimeConstant = 0.8;
+
+    const masterTap = audioCtx.createGain();
+    masterTap.gain.value = 1;
+    masterTap.connect(realDestination);
+    masterTap.connect(analyserNode);
+
+    Object.defineProperty(audioCtx, 'destination', {
+      get: () => masterTap,
+      configurable: true,
     });
 
     initialized = true;
@@ -54,6 +77,14 @@ export function getScheduler() {
  */
 export function getAudioContext() {
   return strudelRepl?.scheduler?.audioContext || null;
+}
+
+/**
+ * Get the AnalyserNode for real-time audio visualization.
+ * Returns null if audio not initialized yet.
+ */
+export function getAnalyser() {
+  return analyserNode;
 }
 
 // Register iOS touch activation for :active pseudo-class

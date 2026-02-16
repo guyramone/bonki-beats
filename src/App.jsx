@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { evaluate, hush } from '@strudel/web';
-import { initAudio, getScheduler } from './main.jsx';
+import { initAudio, getScheduler, getAnalyser } from './main.jsx';
+import Visualizer from './components/Visualizer.jsx';
 import TabBar from './components/TabBar.jsx';
 import Sequencer from './components/Sequencer.jsx';
 import Pads from './components/Pads.jsx';
@@ -483,6 +484,7 @@ function App() {
 
       {/* Transport Bar */}
       <Transport onPlay={handlePlay} onStop={handleStop} onHush={handleHush} isPlaying={isPlaying}>
+        <Visualizer analyser={getAnalyser()} isPlaying={isPlaying} />
         <div className="transport-spacer" />
         <Bonki state={isPlaying ? 'vibing' : 'idle'} bpm={bpm} />
       </Transport>

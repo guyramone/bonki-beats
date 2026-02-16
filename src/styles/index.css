@@ -301,6 +301,16 @@ button {
   background: rgba(217, 119, 87, 0.1);
 }
 
+/* --- Audio Visualizer --- */
+
+.visualizer-canvas {
+  width: 120px;
+  height: 40px;
+  flex-shrink: 0;
+  opacity: 0.8;
+  border-radius: var(--radius-sm);
+}
+
 
 /* --- Audio Init Overlay --- */
 
