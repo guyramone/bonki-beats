@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 ## Current Position
 
 Phase: 1 of 4 (The Pad)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Executing Phase 1 plans
-Last activity: 2026-02-16 — Completed 01-01-PLAN.md (Scaffold Vite + React + Strudel)
+Last activity: 2026-02-16 — Completed 01-02-PLAN.md (Tabbed UI Shell + TE Design System)
 
-Progress: [##........] 25%
+Progress: [#####.....] 50%
 
 ## Accumulated Context
 
@@ -33,6 +33,7 @@ Progress: [##........] 25%
 ### Execution Decisions (Phase 1)
 
 - **Plan 01-01:** Updated vite-plugin-pwa to v1.2.0 for Vite 6 compatibility (auto-fix, Rule 3 - blocking issue)
+- **Plan 01-02:** Used HTML entities for transport icons instead of icon library (zero new dependencies). Added ARIA toolbar/tabpanel roles for accessibility beyond plan spec.
 
 ### Technical Reference
 
@@ -52,9 +53,10 @@ Progress: [##........] 25%
 | Plan | Duration | Tasks | Files | Completed |
 |------|----------|-------|-------|-----------|
 | 01-01 | 227s (3m 47s) | 2 | 8 | 2026-02-16 |
+| 01-02 | 125s (2m 5s) | 2 | 3 | 2026-02-16 |
 
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 01-the-pad/01-01-PLAN.md (Scaffold Vite + React + Strudel)
+Stopped at: Completed 01-the-pad/01-02-PLAN.md (Tabbed UI Shell + TE Design System)
 Resume file: None
