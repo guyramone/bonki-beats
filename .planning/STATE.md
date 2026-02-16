@@ -40,6 +40,7 @@ Progress: [##########] 100% (Phase 2)
 ### Execution Decisions (Phase 2)
 
 - **Plan 02-01:** HUSH clears all layers + stops (panic button). Transport HUSH handler lifted to App.jsx (onHush prop). Grid always 16 wide, stepCount slices view. Volume throttled 100ms, BPM not throttled. Pads add as layers instead of replacing playback.
+- **Plan 02-02:** Preview (tap) vs Add (+) as distinct preset interactions. BonkiCovers use shared BaseBonki body with swapped accessories per genre. messageKey counter pattern for re-triggering identical BonkiSpeech messages. Touch-device "+" button always visible via @media (hover: none).
 - **Plan 02-03:** Prism.highlight() string API (not DOM-based) for React compatibility. displayCode shows clean code without .gain() wrapper. Split-pane stacks on mobile, side-by-side on tablet+. Reused BonkiSpeech component from 02-02 with messageKey for re-trigger support.
 
 ### Technical Reference
@@ -63,6 +64,7 @@ Progress: [##########] 100% (Phase 2)
 | 01-03 | 207s (3m 27s) | 2 | 6 | 2026-02-16 |
 | 01-04 | 205s (3m 25s) | 2 | 5 | 2026-02-16 |
 | 02-01 | 402s (6m 42s) | 2 | 10 | 2026-02-16 |
+| 02-02 | 386s (6m 26s) | 2 | 7 | 2026-02-16 |
 | 02-03 | 335s (5m 35s) | 2 | 6 | 2026-02-16 |
 
 ## Session Continuity
