@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { evaluate, hush } from '@strudel/web';
-import { initAudio } from './main.jsx';
+import { initAudio, getScheduler } from './main.jsx';
 import TabBar from './components/TabBar.jsx';
 import Sequencer from './components/Sequencer.jsx';
 import Pads from './components/Pads.jsx';
@@ -44,7 +44,6 @@ function App() {
   // --- Beat Position State ---
   const [beatStep, setBeatStep] = useState(null);
   const rafRef = useRef(null);
-  const playStartRef = useRef(null);
 
   // --- Code View State ---
   const [flashInfo, setFlashInfo] = useState(null);
@@ -341,16 +340,19 @@ function App() {
     }
   };
 
-  // --- Beat Position Tracking (rAF — drift-free) ---
+  // --- Beat Position Tracking (Strudel scheduler — audio-accurate) ---
   useEffect(() => {
     if (isPlaying) {
-      playStartRef.current = performance.now();
-      const msPerStep = 60000 / bpm;
-
       const tick = () => {
-        const elapsed = performance.now() - playStartRef.current;
-        const currentStep = Math.floor(elapsed / msPerStep) % stepCount;
-        setBeatStep(currentStep);
+        const scheduler = getScheduler();
+        if (scheduler && scheduler.now) {
+          // scheduler.now() returns cycle position (e.g., 0.0, 0.25, 0.5, 0.75, 1.0...)
+          // Each cycle = 1 bar. Steps per cycle = stepCount.
+          const cyclePos = scheduler.now();
+          const fractional = cyclePos % 1; // 0-1 within current cycle
+          const currentStep = Math.floor(fractional * stepCount);
+          setBeatStep(currentStep);
+        }
         rafRef.current = requestAnimationFrame(tick);
       };
 
@@ -367,7 +369,7 @@ function App() {
       }
       setBeatStep(null);
     }
-  }, [isPlaying, bpm, stepCount]);
+  }, [isPlaying, stepCount]);
 
   // --- Code View: derive display code from layers (no volume wrapping — show clean code) ---
   const displayCode = composeLayerCode(layers);
@@ -470,6 +472,8 @@ function App() {
             onCodeClick={handleCodeClick}
             flashLine={flashInfo?.line}
             flashKey={flashInfo?.key}
+            beatStep={beatStep}
+            stepCount={stepCount}
           />
         </aside>
       </div>
