@@ -10,8 +10,12 @@
 export const SOUNDS = [
   { name: 'Kick', sample: 'RolandTR808_bd' },
   { name: 'Snare', sample: 'RolandTR909_sd' },
-  { name: 'Hi-hat', sample: 'RolandTR808_hh' },
+  { name: 'Hi-Hat', sample: 'RolandTR808_hh' },
+  { name: 'Open Hat', sample: 'RolandTR808_oh' },
   { name: 'Clap', sample: 'RolandTR808_cp' },
+  { name: 'Ride', sample: 'RolandTR808_rd' },
+  { name: 'Tom', sample: 'RolandTR808_ht' },
+  { name: 'Cowbell', sample: 'RolandTR808_cb' },
 ];
 
 // --- Sequencer Grid Defaults ---
