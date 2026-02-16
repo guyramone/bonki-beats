@@ -1,0 +1,70 @@
+/**
+ * patterns.js — Sound definitions, pad presets, and sequencer-to-pattern converter
+ *
+ * This is where HOMIE Beats translates grid state and pad taps into
+ * Strudel pattern code that evaluate() can play.
+ */
+
+// --- Sequencer Sound Definitions ---
+
+export const SOUNDS = [
+  { name: 'Kick', sample: 'RolandTR808_bd' },
+  { name: 'Snare', sample: 'RolandTR909_sd' },
+  { name: 'Hi-hat', sample: 'RolandTR808_hh' },
+  { name: 'Clap', sample: 'RolandTR808_cp' },
+];
+
+// --- Sequencer Grid Defaults ---
+
+export const STEP_COUNT = 8;
+export const DEFAULT_GRID = SOUNDS.map(() => Array(STEP_COUNT).fill(false));
+
+// --- Sequencer-to-Pattern Converter ---
+
+/**
+ * Convert a 2D boolean grid into a Strudel pattern string.
+ *
+ * @param {boolean[][]} grid - 2D array: grid[row][step] = true/false
+ * @param {Array<{name: string, sample: string}>} sounds - Sound definitions per row
+ * @returns {string} Strudel code string (e.g. stack(...)) or empty string if all cells off
+ */
+export function sequencerToPattern(grid, sounds) {
+  // Check if every cell is off — nothing to play
+  const hasActiveCell = grid.some(row => row.some(cell => cell));
+  if (!hasActiveCell) return '';
+
+  const patterns = grid.map((row, i) => {
+    const steps = row.map(active => active ? 'x' : '~').join(' ');
+    return `s("${sounds[i].sample}").struct("${steps}")`;
+  });
+
+  return `stack(${patterns.join(', ')})`;
+}
+
+// --- Pad Presets (16 pads, 4x4 grid) ---
+
+export const PADS = [
+  // Row 1 — Drums (warm accent)
+  { id: 0,  label: 'Kick',     pattern: 's("RolandTR808_bd")',     color: 'warm' },
+  { id: 1,  label: 'Snare',    pattern: 's("RolandTR909_sd")',     color: 'warm' },
+  { id: 2,  label: 'Hi-hat',   pattern: 's("RolandTR808_hh")',     color: 'warm' },
+  { id: 3,  label: 'Open Hat',  pattern: 's("RolandTR808_oh")',     color: 'warm' },
+
+  // Row 2 — Percussion (warm accent)
+  { id: 4,  label: 'Clap',     pattern: 's("RolandTR808_cp")',     color: 'warm' },
+  { id: 5,  label: 'Rimshot',  pattern: 's("RolandTR909_rim")',    color: 'warm' },
+  { id: 6,  label: 'Cowbell',  pattern: 's("RolandTR808_cb")',     color: 'warm' },
+  { id: 7,  label: 'Tom',      pattern: 's("RolandTR808_ht")',     color: 'warm' },
+
+  // Row 3 — Patterns (cool accent)
+  { id: 8,  label: '4 Floor',  pattern: 's("RolandTR808_bd").fast(4)',                  color: 'cool' },
+  { id: 9,  label: 'Backbeat', pattern: 's("RolandTR909_sd").struct("~ x ~ x")',        color: 'cool' },
+  { id: 10, label: 'HH Groove', pattern: 's("RolandTR808_hh").fast(8)',                  color: 'cool' },
+  { id: 11, label: 'Funk Kick', pattern: 's("RolandTR808_bd").struct("x ~ x ~ ~ x ~ ~")', color: 'cool' },
+
+  // Row 4 — Weird/Fun (gold accent)
+  { id: 12, label: 'Synth',    pattern: 'note("c3 e3 g3").s("sawtooth").cutoff(800)',              color: 'gold' },
+  { id: 13, label: 'Bass',     pattern: 'note("c2").s("sawtooth").cutoff(400).gain(0.8)',           color: 'gold' },
+  { id: 14, label: 'Blip',     pattern: 'note("c5 e5").s("triangle").decay(0.05).sustain(0)',       color: 'gold' },
+  { id: 15, label: 'Chaos',    pattern: 's("RolandTR808_bd RolandTR909_sd RolandTR808_hh RolandTR808_cp").fast(2).sometimes(rev)', color: 'gold' },
+];
