@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
-import { hush } from '@strudel/web';
+import { evaluate, hush } from '@strudel/web';
 import { initAudio } from './main.jsx';
 import TabBar from './components/TabBar.jsx';
+import Sequencer from './components/Sequencer.jsx';
+import Pads from './components/Pads.jsx';
+import Transport from './components/Transport.jsx';
+import Bonki from './components/Bonki.jsx';
+import { sequencerToPattern, SOUNDS, DEFAULT_GRID } from './utils/patterns.js';
 
 /**
  * App — HOMIE Beats instrument shell
  *
  * Layout: Audio init gate -> Tab bar -> Content area -> Transport bar
- * All views are placeholder until Plans 01-03 and 01-04 fill them in.
+ * Sequencer and Pads are wired to Strudel via evaluate() and hush().
  */
 function App() {
   const [audioReady, setAudioReady] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState(null);
   const [activeTab, setActiveTab] = useState('SEQUENCE');
+  const [grid, setGrid] = useState(DEFAULT_GRID);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // --- Audio Initialization ---
 
@@ -32,19 +39,44 @@ function App() {
     }
   };
 
-  // --- Transport Controls ---
+  // --- Sequencer Controls ---
+
+  const handleToggleCell = (row, step) => {
+    setGrid(prev => {
+      const next = prev.map(r => [...r]);
+      next[row][step] = !next[row][step];
+
+      // Live rebuild: if playing, re-evaluate with updated grid
+      if (isPlaying) {
+        const pattern = sequencerToPattern(next, SOUNDS);
+        if (pattern) {
+          evaluate(pattern);
+        } else {
+          hush();
+          setIsPlaying(false);
+        }
+      }
+
+      return next;
+    });
+  };
 
   const handlePlay = () => {
-    console.log('[HOMIE Beats] Play — wired in Plan 01-03');
+    const pattern = sequencerToPattern(grid, SOUNDS);
+    if (!pattern) return; // Nothing to play if grid is empty
+    evaluate(pattern);
+    setIsPlaying(true);
   };
 
   const handleStop = () => {
-    console.log('[HOMIE Beats] Stop — wired in Plan 01-03');
+    hush();
+    setIsPlaying(false);
   };
 
-  const handleHush = () => {
-    console.log('[HOMIE Beats] HUSH!');
-    hush();
+  // --- Pad Controls ---
+
+  const handlePadTap = (pad) => {
+    evaluate(pad.pattern);
   };
 
   // --- Tab Content Routing ---
@@ -52,21 +84,9 @@ function App() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'SEQUENCE':
-        return (
-          <div className="ai-placeholder">
-            <span className="placeholder-icon">&#9835;</span>
-            <p className="placeholder-title">Sequencer</p>
-            <p>Coming in Plan 01-03</p>
-          </div>
-        );
+        return <Sequencer grid={grid} onToggleCell={handleToggleCell} />;
       case 'PADS':
-        return (
-          <div className="ai-placeholder">
-            <span className="placeholder-icon">&#9641;</span>
-            <p className="placeholder-title">Pads</p>
-            <p>Coming in Plan 01-03</p>
-          </div>
-        );
+        return <Pads onPadTap={handlePadTap} />;
       case 'AI':
         return (
           <div className="ai-placeholder">
@@ -112,29 +132,10 @@ function App() {
       </main>
 
       {/* Transport Bar */}
-      <div className="transport-bar" role="toolbar" aria-label="Transport controls">
-        <button
-          className="transport-button"
-          onClick={handlePlay}
-          aria-label="Play"
-        >
-          &#9654;
-        </button>
-        <button
-          className="transport-button"
-          onClick={handleStop}
-          aria-label="Stop"
-        >
-          &#9632;
-        </button>
-        <button
-          className="transport-button hush"
-          onClick={handleHush}
-          aria-label="Hush all sounds"
-        >
-          HUSH
-        </button>
-      </div>
+      <Transport onPlay={handlePlay} onStop={handleStop} isPlaying={isPlaying}>
+        <div className="transport-spacer" />
+        <Bonki state={isPlaying ? 'vibing' : 'idle'} />
+      </Transport>
     </div>
   );
 }

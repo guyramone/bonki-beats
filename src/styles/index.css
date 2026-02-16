@@ -337,7 +337,140 @@ button {
 }
 
 
+/* --- Sequencer Grid --- */
+
+.sequencer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.sequencer-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(8, 1fr);
+  gap: 4px;
+  padding: 0 var(--space-sm);
+}
+
+.sequencer-label {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding-right: var(--space-sm);
+}
+
+.sequencer-cell {
+  aspect-ratio: 1;
+  min-height: 48px;
+  background: var(--bg-tertiary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s ease, transform 0.1s ease;
+}
+
+.sequencer-cell:hover {
+  background: var(--bg-secondary);
+}
+
+.sequencer-cell.active {
+  background: var(--accent-warm);
+}
+
+.sequencer-cell:active {
+  transform: scale(0.9);
+}
+
+
+/* --- Pad Grid --- */
+
+.pads-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: var(--space-sm);
+}
+
+.pad {
+  min-height: 80px;
+  background: var(--bg-tertiary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pad:active {
+  transform: scale(0.95);
+}
+
+/* Color-coded category borders */
+.pad-warm {
+  border-left: 3px solid var(--accent-warm);
+}
+
+.pad-cool {
+  border-left: 3px solid var(--accent-cool);
+}
+
+.pad-gold {
+  border-left: 3px solid var(--accent-primary);
+}
+
+/* Flash feedback (200ms burst on tap) */
+.pad.flash {
+  background: var(--bg-secondary);
+}
+
+.pad-warm.flash {
+  background: var(--accent-warm);
+  color: var(--bg-primary);
+}
+
+.pad-cool.flash {
+  background: var(--accent-cool);
+  color: var(--bg-primary);
+}
+
+.pad-gold.flash {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+
+/* --- Transport Active State --- */
+
+.transport-button.active {
+  border-color: var(--accent-cool);
+  color: var(--accent-cool);
+  box-shadow: 0 0 12px rgba(107, 144, 128, 0.3);
+}
+
+
 /* --- Responsive Breakpoints --- */
+
+/* Mobile (small screens) */
+@media (max-width: 767px) {
+  .sequencer-label {
+    font-size: 10px;
+  }
+
+  .pad {
+    min-height: 64px;
+  }
+}
 
 /* Tablet (768px+) */
 @media (min-width: 768px) {
@@ -371,6 +504,14 @@ button {
   .init-overlay h1 {
     font-size: 56px;
   }
+
+  .pad {
+    min-height: 100px;
+  }
+
+  .sequencer-grid {
+    grid-template-columns: 70px repeat(8, 1fr);
+  }
 }
 
 /* Desktop (1024px+) */
@@ -400,5 +541,23 @@ button {
 
   .init-overlay h1 {
     font-size: 64px;
+  }
+}
+
+
+/* --- Bonki in Transport Bar --- */
+
+.transport-spacer {
+  flex: 1;
+}
+
+.transport-bar .bonki {
+  margin-left: auto;
+}
+
+/* Hide Bonki on very narrow screens to avoid transport cramping */
+@media (max-width: 374px) {
+  .transport-bar .bonki {
+    display: none;
   }
 }
