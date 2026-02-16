@@ -10,14 +10,23 @@ import '../styles/bonki.css';
  *
  * States:
  *   idle   — gentle breathing sway + periodic slow blink
- *   vibing — rhythmic head bob when music plays
+ *   vibing — rhythmic head bob synced to BPM via CSS custom property
  *
  * @param {Object} props
  * @param {'idle'|'vibing'} props.state - Animation state (default: 'idle')
+ * @param {number} props.bpm - Current BPM for vibe speed (default: 120)
  */
-function Bonki({ state = 'idle' }) {
+function Bonki({ state = 'idle', bpm = 120 }) {
+  // Calculate vibe speed: ms per beat. 120 BPM = 500ms, 60 BPM = 1000ms, 180 BPM = 333ms.
+  const vibeSpeed = Math.round(60000 / bpm);
+
   return (
-    <div className={`bonki bonki-${state}`} aria-label="Bonki the DJ cat" role="img">
+    <div
+      className={`bonki bonki-${state}`}
+      aria-label="Bonki the DJ cat"
+      role="img"
+      style={{ '--bonki-vibe-speed': `${vibeSpeed}ms` }}
+    >
       <svg
         viewBox="0 0 32 32"
         width="48"

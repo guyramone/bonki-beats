@@ -7,6 +7,7 @@ import Pads from './components/Pads.jsx';
 import Transport from './components/Transport.jsx';
 import Bonki from './components/Bonki.jsx';
 import ControlStrip from './components/ControlStrip.jsx';
+import LayerChips from './components/LayerChips.jsx';
 import { sequencerToPattern, SOUNDS, DEFAULT_GRID } from './utils/patterns.js';
 import { composeLayerCode, applyVolume, addLayer, removeLayer, toggleSolo, bpmToCps } from './utils/layers.js';
 
@@ -307,7 +308,14 @@ function App() {
         isPlaying={isPlaying}
       />
 
-      {/* LayerChips will go here in Task 2 */}
+      {/* Layer Chips — visible when layers exist */}
+      {layers.length > 0 && (
+        <LayerChips
+          layers={layers}
+          onRemove={handleRemoveLayer}
+          onToggleSolo={handleToggleSolo}
+        />
+      )}
 
       {/* Content Area */}
       <main className="tab-content" role="tabpanel" aria-label={`${activeTab} panel`}>

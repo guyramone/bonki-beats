@@ -160,6 +160,72 @@ button {
 }
 
 
+/* --- Layer Chips --- */
+
+.layer-chips {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--bg-primary);
+  border-bottom: var(--border-subtle);
+  flex-shrink: 0;
+  overflow-x: auto;
+  min-height: 0;
+}
+
+.layer-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.layer-chip.soloed {
+  border-color: var(--accent-primary);
+}
+
+.layer-chip.dimmed {
+  opacity: 0.4;
+}
+
+.layer-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.layer-chip-dot.type-sequencer { background: var(--accent-cool); }
+.layer-chip-dot.type-pad { background: var(--accent-warm); }
+.layer-chip-dot.type-preset { background: var(--accent-primary); }
+
+.layer-chip-name {
+  cursor: pointer;
+}
+
+.layer-chip-remove {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0 2px;
+  border: none;
+  background: none;
+}
+
+.layer-chip-remove:hover {
+  color: var(--accent-warm);
+}
+
+
 /* --- Transport Bar (sticky bottom) --- */
 
 .transport-bar {

@@ -44,10 +44,10 @@
 }
 
 
-/* --- Vibing State: Rhythmic Head Bob (120 BPM feel) --- */
+/* --- Vibing State: Rhythmic Head Bob (BPM-synced via CSS variable) --- */
 
 .bonki-vibing {
-  animation: bonki-vibe 500ms ease-in-out infinite;
+  animation: bonki-vibe var(--bonki-vibe-speed, 500ms) ease-in-out infinite;
 }
 
 .bonki-vibing .bonki-eyes {
