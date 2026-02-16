@@ -62,7 +62,7 @@ Plans:
   4. Multiple layers can be active simultaneously
   5. Volume control works
   6. 8-step ↔ 16-step toggle works
-**Plans**: 5 plans
+**Plans**: 7 plans
 
 Plans:
 - [ ] 02-01-PLAN.md — Layer manager, controls strip (BPM/volume/8-16 toggle), layer chips, Bonki BPM sync (Wave 1)
@@ -70,6 +70,8 @@ Plans:
 - [ ] 02-03-PLAN.md — Code view panel with Prism.js syntax highlighting, split-pane layout, copy + line flash (Wave 2)
 - [ ] 02-04-PLAN.md — [GAP CLOSURE] Fix BPM real-time tempo, 8/16 toggle blank cells, HUSH grid reset (Wave 3)
 - [ ] 02-05-PLAN.md — [GAP CLOSURE] Fix code view truncation, layer chip colors, Bonki speech position, sequencer clear + beat flash (Wave 4)
+- [ ] 02-06-PLAN.md — [GAP CLOSURE] Fix beat sync drift (rAF + performance.now), color pulse on beat (Wave 5)
+- [ ] 02-07-PLAN.md — [GAP CLOSURE] Expand sequencer to 8 sound rows with per-row colors (Wave 6)
 
 ---
 
@@ -117,6 +119,6 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. The Pad | 4/4 | Complete | 2026-02-16 |
-| 2. The Board | 3/5 | Gap closure (2 fix plans) | - |
+| 2. The Board | 5/7 | Gap closure (2 more fix plans) | - |
 | 3. The Brain | 0/3 | Not started | - |
 | 4. The Polish | 0/3 | Not started | - |
