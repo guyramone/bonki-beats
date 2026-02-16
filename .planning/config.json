@@ -32,5 +32,12 @@
   "safety": {
     "always_confirm_destructive": true,
     "always_confirm_external_services": true
+  },
+  "models": {
+    "profile": "quality",
+    "executor": "opus",
+    "verifier": "opus",
+    "researcher": "opus",
+    "planner": "opus"
   }
 }
