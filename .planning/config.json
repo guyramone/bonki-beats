@@ -33,6 +33,7 @@
     "always_confirm_destructive": true,
     "always_confirm_external_services": true
   },
+  "model_profile": "quality",
   "models": {
     "profile": "quality",
     "executor": "opus",
