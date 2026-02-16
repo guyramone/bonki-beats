@@ -343,7 +343,7 @@ function App() {
               onPresetSelect={handlePresetSelect}
               onPresetAdd={handlePresetAdd}
             />
-            <Sequencer grid={grid} onToggleCell={handleToggleCell} stepCount={stepCount} />
+            <Sequencer key={stepCount} grid={grid} onToggleCell={handleToggleCell} stepCount={stepCount} />
           </>
         );
       case 'PADS':
