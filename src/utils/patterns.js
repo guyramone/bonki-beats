@@ -17,23 +17,31 @@ export const SOUNDS = [
 // --- Sequencer Grid Defaults ---
 
 export const STEP_COUNT = 8;
-export const DEFAULT_GRID = SOUNDS.map(() => Array(STEP_COUNT).fill(false));
+export const STEP_OPTIONS = [8, 16];
+
+// Grid is always 16 columns wide (max). View shows first stepCount columns.
+export const DEFAULT_GRID = SOUNDS.map(() => Array(16).fill(false));
 
 // --- Sequencer-to-Pattern Converter ---
 
 /**
  * Convert a 2D boolean grid into a Strudel pattern string.
+ * Accepts an optional stepCount to slice each row.
  *
- * @param {boolean[][]} grid - 2D array: grid[row][step] = true/false
+ * @param {boolean[][]} grid - 2D array: grid[row][step] = true/false (always 16 wide)
  * @param {Array<{name: string, sample: string}>} sounds - Sound definitions per row
+ * @param {number} [stepCount=8] - Number of steps to use from each row
  * @returns {string} Strudel code string (e.g. stack(...)) or empty string if all cells off
  */
-export function sequencerToPattern(grid, sounds) {
+export function sequencerToPattern(grid, sounds, stepCount = 8) {
+  // Slice each row to stepCount entries
+  const slicedGrid = grid.map(row => row.slice(0, stepCount));
+
   // Check if every cell is off — nothing to play
-  const hasActiveCell = grid.some(row => row.some(cell => cell));
+  const hasActiveCell = slicedGrid.some(row => row.some(cell => cell));
   if (!hasActiveCell) return '';
 
-  const patterns = grid.map((row, i) => {
+  const patterns = slicedGrid.map((row, i) => {
     const steps = row.map(active => active ? 'x' : '~').join(' ');
     return `s("${sounds[i].sample}").struct("${steps}")`;
   });

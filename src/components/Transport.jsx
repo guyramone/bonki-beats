@@ -1,25 +1,19 @@
 import React from 'react';
-import { hush } from '@strudel/web';
 
 /**
  * Transport — Play / Stop / HUSH controls.
  *
  * Play starts the sequencer pattern. Stop halts playback.
- * HUSH is the panic button — kills all sound instantly via hush().
+ * HUSH is the panic button — kills all sound and clears all layers.
  * Play button glows sage green when active.
  *
  * @param {Object} props
  * @param {function} props.onPlay - Called when Play is pressed
  * @param {function} props.onStop - Called when Stop is pressed
+ * @param {function} props.onHush - Called when HUSH is pressed (handles hush + layer clear)
  * @param {boolean} props.isPlaying - Whether audio is currently playing
  */
-function Transport({ onPlay, onStop, isPlaying, children }) {
-  const handleHush = () => {
-    hush();
-    // Also call onStop to sync UI state
-    onStop();
-  };
-
+function Transport({ onPlay, onStop, onHush, isPlaying, children }) {
   return (
     <div className="transport-bar" role="toolbar" aria-label="Transport controls">
       <button
@@ -40,7 +34,7 @@ function Transport({ onPlay, onStop, isPlaying, children }) {
       </button>
       <button
         className="transport-button hush"
-        onClick={handleHush}
+        onClick={onHush}
         aria-label="Hush all sounds"
         type="button"
       >

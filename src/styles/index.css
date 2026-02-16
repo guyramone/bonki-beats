@@ -337,6 +337,98 @@ button {
 }
 
 
+/* --- Controls Strip --- */
+
+.controls-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border-top: var(--border-subtle);
+  border-bottom: var(--border-subtle);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.control-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  min-width: 28px;
+}
+
+.control-readout {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  min-width: 48px;
+  text-align: right;
+}
+
+.controls-strip input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  outline: none;
+}
+
+.controls-strip input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+}
+
+/* BPM slider color via CSS custom property */
+.bpm-slider {
+  accent-color: hsl(var(--bpm-hue, 140), 60%, 50%);
+}
+
+.bpm-slider::-webkit-slider-thumb {
+  background: hsl(var(--bpm-hue, 140), 60%, 50%);
+}
+
+/* Step count segmented control */
+.step-toggle {
+  display: flex;
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.step-toggle-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.step-toggle-btn.active {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+
 /* --- Sequencer Grid --- */
 
 .sequencer {
@@ -347,7 +439,7 @@ button {
 
 .sequencer-grid {
   display: grid;
-  grid-template-columns: 60px repeat(8, 1fr);
+  grid-template-columns: 60px repeat(var(--step-count, 8), 1fr);
   gap: 4px;
   padding: 0 var(--space-sm);
 }
@@ -510,7 +602,16 @@ button {
   }
 
   .sequencer-grid {
-    grid-template-columns: 70px repeat(8, 1fr);
+    grid-template-columns: 70px repeat(var(--step-count, 8), 1fr);
+  }
+
+  .controls-strip {
+    gap: var(--space-xl);
+    padding: var(--space-sm) var(--space-lg);
+  }
+
+  .controls-strip input[type="range"] {
+    width: 120px;
   }
 }
 
@@ -541,6 +642,14 @@ button {
 
   .init-overlay h1 {
     font-size: 64px;
+  }
+
+  .controls-strip {
+    padding: var(--space-sm) var(--space-xl);
+  }
+
+  .controls-strip input[type="range"] {
+    width: 140px;
   }
 }
 
