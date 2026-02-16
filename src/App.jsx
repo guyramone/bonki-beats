@@ -1,95 +1,140 @@
 import React, { useState } from 'react';
+import { hush } from '@strudel/web';
 import { initAudio } from './main.jsx';
+import TabBar from './components/TabBar.jsx';
 
+/**
+ * App — HOMIE Beats instrument shell
+ *
+ * Layout: Audio init gate -> Tab bar -> Content area -> Transport bar
+ * All views are placeholder until Plans 01-03 and 01-04 fill them in.
+ */
 function App() {
-  const [initState, setInitState] = useState('ready'); // 'ready' | 'loading' | 'initialized' | 'error'
-  const [error, setError] = useState(null);
+  const [audioReady, setAudioReady] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioError, setAudioError] = useState(null);
+  const [activeTab, setActiveTab] = useState('SEQUENCE');
 
-  const handleInitialize = async () => {
-    if (initState !== 'ready') return;
+  // --- Audio Initialization ---
 
-    setInitState('loading');
-    setError(null);
+  const handleInit = async () => {
+    if (audioLoading || audioReady) return;
+
+    setAudioLoading(true);
+    setAudioError(null);
 
     try {
       await initAudio();
-      setInitState('initialized');
+      setAudioReady(true);
     } catch (err) {
-      setInitState('error');
-      setError(err.message);
+      setAudioError(err.message);
+      setAudioLoading(false);
     }
   };
 
-  const getButtonText = () => {
-    switch (initState) {
-      case 'ready': return 'Initialize Audio';
-      case 'loading': return 'Loading...';
-      case 'initialized': return 'Ready! Strudel initialized.';
-      case 'error': return 'Failed - Try Again';
-      default: return 'Initialize Audio';
+  // --- Transport Controls ---
+
+  const handlePlay = () => {
+    console.log('[HOMIE Beats] Play — wired in Plan 01-03');
+  };
+
+  const handleStop = () => {
+    console.log('[HOMIE Beats] Stop — wired in Plan 01-03');
+  };
+
+  const handleHush = () => {
+    console.log('[HOMIE Beats] HUSH!');
+    hush();
+  };
+
+  // --- Tab Content Routing ---
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'SEQUENCE':
+        return (
+          <div className="ai-placeholder">
+            <span className="placeholder-icon">&#9835;</span>
+            <p className="placeholder-title">Sequencer</p>
+            <p>Coming in Plan 01-03</p>
+          </div>
+        );
+      case 'PADS':
+        return (
+          <div className="ai-placeholder">
+            <span className="placeholder-icon">&#9641;</span>
+            <p className="placeholder-title">Pads</p>
+            <p>Coming in Plan 01-03</p>
+          </div>
+        );
+      case 'AI':
+        return (
+          <div className="ai-placeholder">
+            <span className="placeholder-icon">&#128564;</span>
+            <p className="placeholder-title">Bonki is napping...</p>
+            <p>AI comes in Phase 3</p>
+          </div>
+        );
+      default:
+        return null;
     }
   };
+
+  // --- Render ---
 
   return (
-    <div className="app" style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      color: '#ffffff',
-      textAlign: 'center',
-      padding: '20px'
-    }}>
-      <h1 style={{
-        fontSize: '48px',
-        fontWeight: '700',
-        marginBottom: '40px',
-        letterSpacing: '-0.02em'
-      }}>
-        HOMIE Beats
-      </h1>
-
-      <button
-        onClick={handleInitialize}
-        disabled={initState === 'loading' || initState === 'initialized'}
-        style={{
-          padding: '16px 32px',
-          fontSize: '16px',
-          fontWeight: '600',
-          fontFamily: 'Inter, sans-serif',
-          background: initState === 'initialized' ? '#6b9080' : (initState === 'error' ? '#d97757' : '#2a2a2a'),
-          color: '#ffffff',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: initState === 'loading' || initState === 'initialized' ? 'not-allowed' : 'pointer',
-          transition: 'all 0.2s',
-          opacity: initState === 'loading' ? 0.6 : 1
-        }}
-      >
-        {getButtonText()}
-      </button>
-
-      {error && (
-        <p style={{
-          marginTop: '20px',
-          color: '#d97757',
-          fontSize: '14px'
-        }}>
-          Error: {error}
-        </p>
+    <div className="app">
+      {/* Audio Init Overlay — gates Strudel behind user gesture */}
+      {!audioReady && (
+        <div className="init-overlay">
+          <h1>HOMIE Beats</h1>
+          <p className="init-subtitle">A Strudel beatpad</p>
+          <button
+            className="init-button"
+            onClick={handleInit}
+            disabled={audioLoading}
+            aria-label="Initialize audio engine"
+          >
+            {audioLoading ? 'Loading...' : 'Tap to Start'}
+          </button>
+          {audioError && (
+            <p className="init-error">Error: {audioError}</p>
+          )}
+        </div>
       )}
 
-      <p style={{
-        marginTop: '40px',
-        fontSize: '14px',
-        color: '#a0a0a0',
-        maxWidth: '500px'
-      }}>
-        This placeholder will be replaced with the full beatpad UI in Plan 01-02.
-        Click the button above to verify Strudel initialization works.
-      </p>
+      {/* Tab Navigation */}
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Content Area */}
+      <main className="tab-content" role="tabpanel" aria-label={`${activeTab} panel`}>
+        {renderTabContent()}
+      </main>
+
+      {/* Transport Bar */}
+      <div className="transport-bar" role="toolbar" aria-label="Transport controls">
+        <button
+          className="transport-button"
+          onClick={handlePlay}
+          aria-label="Play"
+        >
+          &#9654;
+        </button>
+        <button
+          className="transport-button"
+          onClick={handleStop}
+          aria-label="Stop"
+        >
+          &#9632;
+        </button>
+        <button
+          className="transport-button hush"
+          onClick={handleHush}
+          aria-label="Hush all sounds"
+        >
+          HUSH
+        </button>
+      </div>
     </div>
   );
 }
