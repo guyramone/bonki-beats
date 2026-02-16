@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 /**
  * BonkiSpeech — Speech bubble overlay for Bonki reactions
  *
- * Appears near the transport bar when a preset loads.
+ * Appears near the transport bar when a preset loads or code view is clicked.
  * Auto-dismisses after 3 seconds. Small tail/triangle points toward Bonki.
  *
  * @param {Object} props
  * @param {string|null} props.message - Text to show (null/empty = hidden)
+ * @param {*} [props.messageKey] - Change this to re-trigger the same message text
  */
-function BonkiSpeech({ message }) {
+function BonkiSpeech({ message, messageKey }) {
   const [visible, setVisible] = useState(false);
   const [displayMessage, setDisplayMessage] = useState(null);
 
@@ -26,7 +27,7 @@ function BonkiSpeech({ message }) {
     } else {
       setVisible(false);
     }
-  }, [message]);
+  }, [message, messageKey]);
 
   if (!visible || !displayMessage) return null;
 

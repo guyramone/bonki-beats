@@ -133,29 +133,49 @@ button {
 }
 
 
-/* --- Content Area --- */
+/* --- Split Pane Layout --- */
 
-.tab-content {
+.split-pane {
+  display: flex;
+  flex-direction: column; /* Default: stacked (mobile) */
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.split-pane-instrument {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-md);
+  min-height: 0;
 }
 
-/* Custom scrollbar (webkit) */
-.tab-content::-webkit-scrollbar {
+.split-pane-code {
+  flex-shrink: 0;
+  height: 200px; /* Fixed height on mobile — scrollable code panel below instrument */
+  overflow: hidden;
+  padding: 0 var(--space-md) var(--space-sm);
+}
+
+.split-pane-code .code-view {
+  height: 100%;
+}
+
+/* Custom scrollbar for instrument panel (webkit) */
+.split-pane-instrument::-webkit-scrollbar {
   width: 6px;
 }
 
-.tab-content::-webkit-scrollbar-track {
+.split-pane-instrument::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
 
-.tab-content::-webkit-scrollbar-thumb {
+.split-pane-instrument::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
   border-radius: 3px;
 }
 
-.tab-content::-webkit-scrollbar-thumb:hover {
+.split-pane-instrument::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
 }
 
@@ -641,8 +661,21 @@ button {
     font-size: 15px;
   }
 
-  .tab-content {
+  .split-pane {
+    flex-direction: row; /* Side by side on tablet+ */
+  }
+
+  .split-pane-instrument {
+    flex: 1;
     padding: var(--space-lg);
+  }
+
+  .split-pane-code {
+    width: 340px;
+    height: auto;
+    flex-shrink: 0;
+    padding: var(--space-lg);
+    border-left: var(--border-subtle);
   }
 
   .transport-bar {
@@ -698,7 +731,12 @@ button {
     padding: 16px 28px;
   }
 
-  .tab-content {
+  .split-pane-instrument {
+    padding: var(--space-xl);
+  }
+
+  .split-pane-code {
+    width: 400px;
     padding: var(--space-xl);
   }
 

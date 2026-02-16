@@ -8,15 +8,19 @@ import Transport from './components/Transport.jsx';
 import Bonki from './components/Bonki.jsx';
 import ControlStrip from './components/ControlStrip.jsx';
 import LayerChips from './components/LayerChips.jsx';
+import CodeView from './components/CodeView.jsx';
+import PresetGallery from './components/PresetGallery.jsx';
+import BonkiSpeech from './components/BonkiSpeech.jsx';
 import { sequencerToPattern, SOUNDS, DEFAULT_GRID } from './utils/patterns.js';
 import { composeLayerCode, applyVolume, addLayer, removeLayer, toggleSolo, bpmToCps } from './utils/layers.js';
 
 /**
  * App — HOMIE Beats instrument shell
  *
- * Layout: Audio init gate -> Tab bar -> Controls strip -> Layer chips -> Content area -> Transport bar
+ * Layout: Audio init gate -> Tab bar -> Controls strip -> Layer chips -> Split pane (instrument + code view) -> Transport bar
  * Multi-layer architecture: sequencer + pads compose via stack() through the layer manager.
  * BPM via setcps(), volume via .gain(), step count toggles grid width.
+ * Code view shows live Strudel code with syntax highlighting, always visible.
  */
 function App() {
   // --- Audio State ---
@@ -36,6 +40,17 @@ function App() {
   const [bpm, setBpm] = useState(120);
   const [volume, setVolume] = useState(1);
   const [stepCount, setStepCount] = useState(8);
+
+  // --- Code View State ---
+  const [flashInfo, setFlashInfo] = useState(null);
+  const [bonkiMessage, setBonkiMessage] = useState(null);
+  const [bonkiMessageKey, setBonkiMessageKey] = useState(0);
+
+  // --- Bonki Speech Helper ---
+  const showBonkiMessage = (text) => {
+    setBonkiMessage(text);
+    setBonkiMessageKey(k => k + 1);
+  };
 
   // --- Volume Throttle Ref ---
   const volumeThrottleRef = useRef(null);
@@ -113,6 +128,11 @@ function App() {
           return updatedLayers;
         });
       }
+
+      // Flash the corresponding line in code view.
+      // sequencerToPattern generates one line per sound row inside stack(),
+      // so row 0 → line 1 (after "stack("), row N → line N+1.
+      setFlashInfo({ line: row + 1, key: Date.now() });
 
       return next;
     });
@@ -194,6 +214,53 @@ function App() {
     });
   };
 
+  // --- Preset Controls ---
+
+  /**
+   * Preview a preset: plays the preset code immediately, sets BPM,
+   * shows Bonki reaction. Does NOT add as a layer (just an audition).
+   */
+  const handlePresetSelect = (preset) => {
+    // Set BPM to preset's ideal tempo
+    setBpm(preset.bpm);
+    evaluate(`setcps(${bpmToCps(preset.bpm)})`);
+
+    // Preview: evaluate just the preset code (replaces current playback)
+    evaluate(preset.code);
+    setIsPlaying(true);
+
+    // Bonki reacts
+    showBonkiMessage(preset.bonkiLine);
+  };
+
+  /**
+   * Add a preset as a layer on top of the current mix.
+   * Sets BPM, adds layer, evaluates all layers, shows Bonki reaction.
+   */
+  const handlePresetAdd = (preset) => {
+    // Set BPM to preset's ideal tempo
+    setBpm(preset.bpm);
+    evaluate(`setcps(${bpmToCps(preset.bpm)})`);
+
+    // Add preset as a new layer
+    const presetLayer = {
+      id: `preset-${preset.id}`,
+      name: preset.name,
+      type: 'preset',
+      code: preset.code,
+      active: true,
+    };
+
+    setLayers(prevLayers => {
+      const updatedLayers = addLayer(prevLayers, presetLayer);
+      evaluateAllLayers(updatedLayers, volume);
+      return updatedLayers;
+    });
+
+    // Bonki reacts
+    showBonkiMessage(preset.bonkiLine);
+  };
+
   // --- BPM Control ---
 
   const handleBpmChange = (newBpm) => {
@@ -250,12 +317,28 @@ function App() {
     }
   };
 
+  // --- Code View: derive display code from layers (no volume wrapping — show clean code) ---
+  const displayCode = composeLayerCode(layers);
+
+  // --- Code Click: read-only gatekeeping via Bonki ---
+  const handleCodeClick = () => {
+    showBonkiMessage("not yet, human -- I'll teach you soon");
+  };
+
   // --- Tab Content Routing ---
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'SEQUENCE':
-        return <Sequencer grid={grid} onToggleCell={handleToggleCell} stepCount={stepCount} />;
+        return (
+          <>
+            <PresetGallery
+              onPresetSelect={handlePresetSelect}
+              onPresetAdd={handlePresetAdd}
+            />
+            <Sequencer grid={grid} onToggleCell={handleToggleCell} stepCount={stepCount} />
+          </>
+        );
       case 'PADS':
         return <Pads onPadTap={handlePadTap} />;
       case 'AI':
@@ -317,10 +400,23 @@ function App() {
         />
       )}
 
-      {/* Content Area */}
-      <main className="tab-content" role="tabpanel" aria-label={`${activeTab} panel`}>
-        {renderTabContent()}
-      </main>
+      {/* Split Pane: Instrument + Code View */}
+      <div className="split-pane">
+        <main className="split-pane-instrument" role="tabpanel" aria-label={`${activeTab} panel`}>
+          {renderTabContent()}
+        </main>
+        <aside className="split-pane-code">
+          <CodeView
+            code={displayCode}
+            onCodeClick={handleCodeClick}
+            flashLine={flashInfo?.line}
+            flashKey={flashInfo?.key}
+          />
+        </aside>
+      </div>
+
+      {/* Bonki Speech Bubble — triggered by preset loads and code view click */}
+      <BonkiSpeech message={bonkiMessage} messageKey={bonkiMessageKey} />
 
       {/* Transport Bar */}
       <Transport onPlay={handlePlay} onStop={handleStop} onHush={handleHush} isPlaying={isPlaying}>
