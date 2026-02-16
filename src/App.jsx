@@ -170,6 +170,7 @@ function App() {
     // HUSH = panic button: clear everything
     hush();
     setLayers([]);
+    setGrid(DEFAULT_GRID);
     setIsPlaying(false);
   };
 
@@ -265,8 +266,14 @@ function App() {
 
   const handleBpmChange = (newBpm) => {
     setBpm(newBpm);
-    // setcps is lightweight — no pattern reparse needed
     evaluate(`setcps(${bpmToCps(newBpm)})`);
+    // Re-evaluate all layers so music continues at new tempo
+    if (isPlaying) {
+      setLayers(currentLayers => {
+        evaluateAllLayers(currentLayers, volume);
+        return currentLayers; // Don't modify layers
+      });
+    }
   };
 
   // --- Volume Control (throttled) ---
