@@ -33,28 +33,34 @@ export async function initAudio() {
       }
     });
 
-    // Set up audio analysis tap for Visualizer.
-    // Override audioContext.destination with a GainNode that splits the signal
-    // to both the real destination and our AnalyserNode. This intercepts all
-    // future audio routing transparently.
-    const audioCtx = strudelRepl.scheduler.audioContext;
-    const realDestination = audioCtx.destination;
-
-    analyserNode = audioCtx.createAnalyser();
-    analyserNode.fftSize = 512;
-    analyserNode.smoothingTimeConstant = 0.8;
-
-    const masterTap = audioCtx.createGain();
-    masterTap.gain.value = 1;
-    masterTap.connect(realDestination);
-    masterTap.connect(analyserNode);
-
-    Object.defineProperty(audioCtx, 'destination', {
-      get: () => masterTap,
-      configurable: true,
-    });
-
     initialized = true;
+
+    // Set up audio analysis tap for Visualizer (non-fatal — visualizer is optional).
+    // Override audioContext.destination with a GainNode that splits the signal
+    // to both the real destination and our AnalyserNode.
+    try {
+      const audioCtx = strudelRepl?.scheduler?.audioContext;
+      if (audioCtx && audioCtx.destination) {
+        const realDestination = audioCtx.destination;
+
+        analyserNode = audioCtx.createAnalyser();
+        analyserNode.fftSize = 512;
+        analyserNode.smoothingTimeConstant = 0.8;
+
+        const masterTap = audioCtx.createGain();
+        masterTap.gain.value = 1;
+        masterTap.connect(realDestination);
+        masterTap.connect(analyserNode);
+
+        Object.defineProperty(audioCtx, 'destination', {
+          get: () => masterTap,
+          configurable: true,
+        });
+        console.log('Audio analyser tap connected');
+      }
+    } catch (analyserErr) {
+      console.warn('Visualizer analyser setup failed (non-fatal):', analyserErr.message);
+    }
     console.log('Strudel initialized successfully');
     return true;
   } catch (error) {
