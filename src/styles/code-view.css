@@ -1,0 +1,196 @@
+/* ============================================================
+   CodeView — Dark Terminal Aesthetic
+   One Dark / Monokai inspired syntax token colors.
+   Monospace font, scrollable, flash animation for live feedback.
+   ============================================================ */
+
+/* --- Container --- */
+
+.code-view {
+  display: flex;
+  flex-direction: column;
+  background: #111111;
+  border-radius: var(--radius-md);
+  border: var(--border-subtle);
+  overflow: hidden;
+  min-height: 0;
+  cursor: default;
+}
+
+/* --- Header Bar --- */
+
+.code-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-sm);
+  background: #0d0d0d;
+  border-bottom: 1px solid #1a1a1a;
+  flex-shrink: 0;
+}
+
+.code-view-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5c6370;
+}
+
+.code-view-copy {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-sm);
+  color: #5c6370;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.04em;
+}
+
+.code-view-copy:hover:not(:disabled) {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.code-view-copy:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* --- Code Pre Block --- */
+
+.code-view-pre {
+  flex: 1;
+  margin: 0;
+  padding: var(--space-sm);
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #abb2bf;
+  tab-size: 2;
+  min-height: 0;
+}
+
+.code-view-pre code {
+  display: block;
+}
+
+/* Custom scrollbar for code panel */
+.code-view-pre::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.code-view-pre::-webkit-scrollbar-track {
+  background: #111111;
+}
+
+.code-view-pre::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+.code-view-pre::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* --- Per-Line Rendering --- */
+
+.code-line {
+  padding: 0 var(--space-xs);
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.15s ease;
+  white-space: pre;
+}
+
+.code-line-empty {
+  opacity: 0.5;
+}
+
+/* --- Flash Animation (golden glow that fades over 0.6s) --- */
+
+.code-line.flash {
+  animation: line-flash 0.6s ease-out;
+}
+
+@keyframes line-flash {
+  0% {
+    background: rgba(245, 166, 35, 0.35);
+  }
+  40% {
+    background: rgba(245, 166, 35, 0.2);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* --- Prism Token Colors (One Dark inspired) --- */
+
+/* Keywords: const, let, if, return, function, var, etc. */
+.code-view .token.keyword {
+  color: #c678dd;
+}
+
+/* Strings: "quoted strings", 'single quotes', `template literals` */
+.code-view .token.string,
+.code-view .token.template-string {
+  color: #98c379;
+}
+
+/* Numbers: numeric literals */
+.code-view .token.number {
+  color: #d19a66;
+}
+
+/* Functions: function names, method calls */
+.code-view .token.function {
+  color: #61afef;
+}
+
+/* Operators: +, -, =, =>, etc. */
+.code-view .token.operator {
+  color: #56b6c2;
+}
+
+/* Punctuation: parens, braces, commas, semicolons */
+.code-view .token.punctuation {
+  color: #abb2bf;
+}
+
+/* Comments: // single line, /* block */
+.code-view .token.comment {
+  color: #5c6370;
+  font-style: italic;
+}
+
+/* Booleans: true, false */
+.code-view .token.boolean {
+  color: #d19a66;
+}
+
+/* Regex patterns */
+.code-view .token.regex {
+  color: #e06c75;
+}
+
+/* Class names, constants */
+.code-view .token.class-name,
+.code-view .token.constant {
+  color: #e5c07b;
+}
+
+/* Template literal interpolation */
+.code-view .token.template-punctuation {
+  color: #98c379;
+}
+
+/* Parameters */
+.code-view .token.parameter {
+  color: #e06c75;
+}
