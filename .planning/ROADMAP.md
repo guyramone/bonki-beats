@@ -72,9 +72,9 @@ Plans:
 - [x] 02-05-PLAN.md — [GAP CLOSURE] Fix code view truncation, layer chip colors, Bonki speech position, sequencer clear + beat flash (Wave 4)
 - [x] 02-06-PLAN.md — [GAP CLOSURE] Fix beat sync drift (rAF + performance.now), color pulse on beat (Wave 5)
 - [x] 02-07-PLAN.md — [GAP CLOSURE] Expand sequencer to 8 sound rows with per-row colors (Wave 6)
-- [ ] 02-08-PLAN.md — [GAP CLOSURE] True audio sync via scheduler.now(), column playhead, trigger-pop animation (Wave 7)
-- [ ] 02-09-PLAN.md — [GAP CLOSURE] Alive code view: per-line bounce, pattern char cursor, color borders (Wave 7)
-- [ ] 02-10-PLAN.md — [GAP CLOSURE] Canvas audio visualizer in transport bar (Wave 8)
+- [x] 02-08-PLAN.md — [GAP CLOSURE] True audio sync via scheduler.now(), column playhead, trigger-pop animation (Wave 7)
+- [x] 02-09-PLAN.md — [GAP CLOSURE] Alive code view: per-line bounce, pattern char cursor, color borders (Wave 7)
+- [x] 02-10-PLAN.md — [GAP CLOSURE] Canvas audio visualizer in transport bar (Wave 8)
 
 ---
 
@@ -122,6 +122,6 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. The Pad | 4/4 | Complete | 2026-02-16 |
-| 2. The Board | 7/10 | Gap closure (3 more: audio sync, alive code, visualizer) | - |
+| 2. The Board | 10/10 | Complete | 2026-02-16 |
 | 3. The Brain | 0/3 | Not started | - |
 | 4. The Polish | 0/3 | Not started | - |
