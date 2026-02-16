@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { initStrudel, samples } from '@strudel/web';
+import { initStrudel, samples, getAudioContext as strudelGetAudioContext } from '@strudel/web';
 import App from './App.jsx';
 import './styles/index.css';
 
@@ -36,10 +36,11 @@ export async function initAudio() {
     initialized = true;
 
     // Set up audio analysis tap for Visualizer (non-fatal — visualizer is optional).
-    // Override audioContext.destination with a GainNode that splits the signal
+    // Use superdough's getAudioContext (the real AudioContext all Strudel audio flows through).
+    // Override its destination with a GainNode that splits the signal
     // to both the real destination and our AnalyserNode.
     try {
-      const audioCtx = strudelRepl?.scheduler?.audioContext;
+      const audioCtx = strudelGetAudioContext();
       if (audioCtx && audioCtx.destination) {
         const realDestination = audioCtx.destination;
 
@@ -56,7 +57,7 @@ export async function initAudio() {
           get: () => masterTap,
           configurable: true,
         });
-        console.log('Audio analyser tap connected');
+        console.log('Audio analyser tap connected via superdough AudioContext');
       }
     } catch (analyserErr) {
       console.warn('Visualizer analyser setup failed (non-fatal):', analyserErr.message);
@@ -78,11 +79,15 @@ export function getScheduler() {
 }
 
 /**
- * Get the Web Audio AudioContext for AnalyserNode connections.
+ * Get the Web Audio AudioContext (from superdough — the real one Strudel uses).
  * Returns null if audio not initialized yet.
  */
 export function getAudioContext() {
-  return strudelRepl?.scheduler?.audioContext || null;
+  try {
+    return strudelGetAudioContext() || null;
+  } catch {
+    return null;
+  }
 }
 
 /**
