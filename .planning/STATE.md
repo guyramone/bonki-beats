@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 ## Current Position
 
 Phase: 3 of 5 (The Knobs)
-Plan: 2 of 8 in current phase
-Status: Executing Phase 3 plans. Plans 03-01 and 03-02 complete.
-Last activity: 2026-02-17 — Completed Plan 03-02: Slider and ToggleSwitch control components.
+Plan: 4 of 8 in current phase
+Status: Executing Phase 3 plans. Plans 03-01 through 03-04 complete.
+Last activity: 2026-02-17 — Completed Plan 03-04: Per-row effects rack with signal chain layout.
 
-Progress: [##........] 25% (Phase 3 — 2/8 plans complete)
+Progress: [#####.....] 50% (Phase 3 — 4/8 plans complete)
 
 ## Accumulated Context
 
@@ -54,6 +54,7 @@ Progress: [##........] 25% (Phase 3 — 2/8 plans complete)
 
 - **Plan 03-01:** Row model as single source of truth (replacing grid+SOUNDS). 16 instruments in 5 collapsible sections. Pure code generator (rowsToStrudelCode/generateDisplayCode). Effect defaults with ranges. rAF-throttled evaluate pipeline. Overlay layers separated from sequencer. 36px cells + scrollable sequencer for 16 rows.
 - **Plan 03-02:** Task 1 (Knob + knobs.css + react-knob-headless) already committed by parallel 03-01. Slider uses native range input with CSS gradient fill. ToggleSwitch uses CSS custom properties for per-instance color theming.
+- **Plan 03-04:** Dotted path notation for effect parameter changes (cutoff.value, cutoff.active). Filter envelope/LFO as collapsible sub-sections. Auto-enable on toggle (delay/reverb/distort set sensible defaults when activated). RowControls placed below grid row. Effect chain presets call individual change() calls (preserve unmentioned params).
 
 ### Technical Reference
 
@@ -87,9 +88,10 @@ Progress: [##........] 25% (Phase 3 — 2/8 plans complete)
 | 02-10 | — (cross-session) | 3 | 4 | 2026-02-16 |
 | 03-01 | 404s (6m 44s) | 2 | 8 | 2026-02-17 |
 | 03-02 | 253s (4m 13s) | 2 | 2 | 2026-02-17 |
+| 03-04 | 316s (5m 16s) | 2 | 6 | 2026-02-17 |
 
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03-01-PLAN.md (row model + code generator + 16-row sequencer). Plans 03-01 and 03-02 done (wave 1 complete).
-Resume file: .planning/phases/03-the-knobs/03-01-SUMMARY.md
+Stopped at: Completed 03-04-PLAN.md (per-row effects rack + App handlers). Plans 03-01, 03-02, 03-04 done (wave 2 in progress).
+Resume file: .planning/phases/03-the-knobs/03-04-SUMMARY.md
