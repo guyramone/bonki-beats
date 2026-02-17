@@ -4,6 +4,7 @@ import { initStrudel, samples, getAudioContext as strudelGetAudioContext, getSup
 import App from './App.jsx';
 import './styles/index.css';
 import './styles/knobs.css';
+import './styles/scale-picker.css';
 
 // Audio initialization state (module-level)
 let initialized = false;
@@ -35,6 +36,15 @@ export async function initAudio() {
     });
 
     initialized = true;
+
+    // Register soundfont playback (fonts load lazily from CDN on first use)
+    try {
+      const { registerSoundfonts } = await import('@strudel/soundfonts');
+      await registerSoundfonts();
+      console.log('Soundfonts registered');
+    } catch (err) {
+      console.warn('Soundfont registration failed (non-fatal):', err.message);
+    }
 
     // Tap superdough's master gain for visualization (non-destructive — no destination override).
     // The audio chain: Orbits → channelMerger → destinationGain → audioContext.destination.
