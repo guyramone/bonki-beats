@@ -13,6 +13,7 @@ import CodeView from './components/CodeView.jsx';
 import PresetGallery from './components/PresetGallery.jsx';
 import BonkiSpeech from './components/BonkiSpeech.jsx';
 import ScalePicker from './components/ScalePicker.jsx';
+import SoundBrowser from './components/SoundBrowser.jsx';
 import { DEFAULT_ROWS, SECTIONS, ROW_COLORS, getRowLabel } from './utils/rowModel.js';
 import { rowsToStrudelCode, generateDisplayCode } from './utils/codeGenerator.js';
 import { composeLayerCode, applyVolume, addLayer, removeLayer, toggleSolo, bpmToCps } from './utils/layers.js';
@@ -64,6 +65,10 @@ function App() {
   const [rootNote, setRootNote] = useState('C');
   const [scaleName, setScaleName] = useState('major');
   const [scalePickerOpen, setScalePickerOpen] = useState(false);
+
+  // --- Sound Browser State ---
+  const [soundBrowserOpen, setSoundBrowserOpen] = useState(false);
+  const [soundBrowserRowIndex, setSoundBrowserRowIndex] = useState(null);
 
   // Compute globalScale from rootNote + scaleName
   // (null means no scale applied -- only non-null when scale picker has been used)
@@ -363,6 +368,89 @@ function App() {
     });
   };
 
+  // --- Sound Browser ---
+
+  const handleOpenSoundBrowser = (rowIndex) => {
+    setSoundBrowserRowIndex(rowIndex);
+    setSoundBrowserOpen(true);
+  };
+
+  const handleSoundSelect = (sound) => {
+    if (soundBrowserRowIndex === null) return;
+
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== soundBrowserRowIndex) return r;
+
+        // If switching to/from synth/soundfont, update note/octave defaults
+        const needsNote = sound.type === 'synth' || sound.type === 'soundfont';
+        const hadNote = r.sound.type === 'synth' || r.sound.type === 'soundfont';
+        const note = needsNote ? (r.note || `c${r.octave}`) : r.note;
+
+        return { ...r, sound: { ...sound }, note };
+      });
+      rowsRef.current = next;
+      return next;
+    });
+
+    setSoundBrowserOpen(false);
+    setSoundBrowserRowIndex(null);
+
+    if (isPlaying) {
+      scheduleEvaluate();
+    }
+  };
+
+  const handleCloseSoundBrowser = () => {
+    setSoundBrowserOpen(false);
+    setSoundBrowserRowIndex(null);
+  };
+
+  // --- Euclidean Pattern Control ---
+
+  const handleEuclideanChange = (rowIndex, euclid) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        return { ...r, pattern: { ...r.pattern, euclid } };
+      });
+      rowsRef.current = next;
+      if (isPlaying) scheduleEvaluate();
+      return next;
+    });
+  };
+
+  const handleSwitchToEuclid = (rowIndex) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        return {
+          ...r,
+          pattern: {
+            ...r.pattern,
+            euclid: { pulses: 3, steps: 8, rotation: 0 },
+            steps: Array(16).fill(false),
+          },
+        };
+      });
+      rowsRef.current = next;
+      if (isPlaying) scheduleEvaluate();
+      return next;
+    });
+  };
+
+  const handleSwitchToManual = (rowIndex) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        return { ...r, pattern: { ...r.pattern, euclid: null } };
+      });
+      rowsRef.current = next;
+      if (isPlaying) scheduleEvaluate();
+      return next;
+    });
+  };
+
   // --- Pad Controls ---
 
   const handlePadTap = (pad) => {
@@ -625,7 +713,11 @@ function App() {
               onEffectChange={handleEffectChange}
               onTransformChange={handleTransformChange}
               onVolumeChange={handleRowVolumeChange}
+              onSoundBrowserOpen={handleOpenSoundBrowser}
               onMuteToggle={handleMuteToggle}
+              onEuclideanChange={handleEuclideanChange}
+              onSwitchToEuclid={handleSwitchToEuclid}
+              onSwitchToManual={handleSwitchToManual}
             />
           </>
         );
@@ -708,6 +800,15 @@ function App() {
           />
         </aside>
       </div>
+
+      {/* Sound Browser Modal */}
+      <SoundBrowser
+        isOpen={soundBrowserOpen}
+        onClose={handleCloseSoundBrowser}
+        onSelect={handleSoundSelect}
+        currentSound={soundBrowserRowIndex !== null ? rows[soundBrowserRowIndex]?.sound : null}
+        onBonkiReaction={showBonkiMessage}
+      />
 
       {/* Bonki Speech Bubble -- triggered by preset loads and code view click */}
       <BonkiSpeech message={bonkiMessage} messageKey={bonkiMessageKey} />

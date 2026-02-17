@@ -4,6 +4,7 @@ import Knob from './Knob.jsx';
 import ToggleSwitch from './ToggleSwitch.jsx';
 import { EFFECT_RANGES } from '../utils/effectDefaults.js';
 import { getRowLabel } from '../utils/rowModel.js';
+import { soundToLabel } from '../utils/soundCatalog.js';
 
 /**
  * RowControls — Compact inline control strip per sequencer row
@@ -34,7 +35,9 @@ export default function RowControls({
   color,
 }) {
   const label = getRowLabel(row, rowIndex);
-  const truncatedLabel = label.length > 8 ? label.slice(0, 7) + '\u2026' : label;
+  // Show sound source info on the selector pill
+  const soundLabel = soundToLabel(row.sound);
+  const truncatedSound = soundLabel.length > 10 ? soundLabel.slice(0, 9) + '\u2026' : soundLabel;
 
   // Filter cutoff range
   const cutoffRange = EFFECT_RANGES.cutoff;
@@ -62,12 +65,13 @@ export default function RowControls({
       {/* Sound selector button */}
       <button
         type="button"
-        className="row-sound-btn"
+        className="row-sound-btn sound-selector-pill"
         onClick={() => onSoundBrowserOpen && onSoundBrowserOpen(rowIndex)}
-        aria-label={`Change sound for ${label}`}
+        aria-label={`Change sound for ${label}, currently ${soundLabel}`}
         style={{ borderColor: color }}
+        title={soundLabel}
       >
-        {truncatedLabel}
+        {truncatedSound}
       </button>
 
       {/* Volume slider (compact) */}
