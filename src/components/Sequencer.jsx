@@ -39,6 +39,9 @@ function Sequencer({
   onVolumeChange,
   onSoundBrowserOpen,
   onMuteToggle,
+  onEuclideanChange,
+  onSwitchToEuclid,
+  onSwitchToManual,
 }) {
   // Track which cells just triggered (for pop animation)
   const [triggeredCells, setTriggeredCells] = useState(new Set());
@@ -190,6 +193,9 @@ function Sequencer({
                         onEffectChange={onEffectChange}
                         onTransformChange={onTransformChange}
                         color={rowColor}
+                        onEuclideanChange={onEuclideanChange}
+                        onSwitchToEuclid={onSwitchToEuclid}
+                        onSwitchToManual={onSwitchToManual}
                       />
                     )}
                   </div>

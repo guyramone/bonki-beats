@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Knob from './Knob.jsx';
 import Slider from './Slider.jsx';
 import ToggleSwitch from './ToggleSwitch.jsx';
+import EuclideanControl from './EuclideanControl.jsx';
 import {
   EFFECT_RANGES,
   DISTORTION_TYPES,
@@ -22,6 +23,9 @@ import {
  * @param {function} props.onEffectChange - Called with (rowIndex, paramPath, value)
  * @param {function} props.onTransformChange - Called with (rowIndex, param, value)
  * @param {string} props.color - CSS color for this row
+ * @param {function} props.onEuclideanChange - Called with (rowIndex, { pulses, steps, rotation })
+ * @param {function} props.onSwitchToEuclid - Called with (rowIndex) to switch from manual to euclidean
+ * @param {function} props.onSwitchToManual - Called with (rowIndex) to switch from euclidean to manual
  */
 export default function EffectsRack({
   row,
@@ -29,6 +33,9 @@ export default function EffectsRack({
   onEffectChange,
   onTransformChange,
   color,
+  onEuclideanChange,
+  onSwitchToEuclid,
+  onSwitchToManual,
 }) {
   // Collapsible sub-sections for filter envelope and LFO
   const [showEnvelope, setShowEnvelope] = useState(false);
@@ -133,8 +140,43 @@ export default function EffectsRack({
   const distortActive = row.effects.distort.active && row.effects.distort.value > 0;
   const lofiActive = row.effects.crush !== null || row.effects.coarse !== null;
 
+  const isEuclidean = row.pattern.euclid !== null;
+
   return (
     <div className="effects-rack effects-rack-enter">
+      {/* Euclidean Rhythm Section */}
+      <div className="euclid-section">
+        <div className="euclid-section-header">
+          <span className="effect-node-label">Rhythm</span>
+          <div className="effect-segmented">
+            <button
+              type="button"
+              className={`effect-seg-btn${!isEuclidean ? ' active' : ''}`}
+              onClick={() => onSwitchToManual && onSwitchToManual(rowIndex)}
+            >
+              Manual
+            </button>
+            <button
+              type="button"
+              className={`effect-seg-btn${isEuclidean ? ' active' : ''}`}
+              onClick={() => onSwitchToEuclid && onSwitchToEuclid(rowIndex)}
+            >
+              Euclidean
+            </button>
+          </div>
+        </div>
+        {isEuclidean && (
+          <EuclideanControl
+            pulses={row.pattern.euclid.pulses}
+            steps={row.pattern.euclid.steps}
+            rotation={row.pattern.euclid.rotation || 0}
+            onChange={(euclid) => onEuclideanChange && onEuclideanChange(rowIndex, euclid)}
+            size={64}
+            color={color}
+          />
+        )}
+      </div>
+
       {/* Preset row */}
       <div className="effect-presets">
         {PRESETS.map((preset) => (

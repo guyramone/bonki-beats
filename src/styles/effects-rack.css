@@ -484,3 +484,148 @@
     flex-wrap: nowrap;
   }
 }
+
+
+/* ============================================================
+   EUCLIDEAN RHYTHM CONTROL
+   Ring preview + pulse/step/rotation steppers + rhythm name hints
+   ============================================================ */
+
+.euclid-section {
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.euclid-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+
+/* --- Euclidean Control Layout --- */
+
+.euclid-control {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: var(--space-xs) 0;
+}
+
+.euclid-disabled {
+  justify-content: center;
+}
+
+.euclid-switch-btn {
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.euclid-switch-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+
+/* --- SVG Ring Preview --- */
+
+.euclid-ring-wrapper {
+  flex-shrink: 0;
+}
+
+.euclid-ring {
+  display: block;
+}
+
+.euclid-dot.active {
+  transition: r 0.15s ease;
+}
+
+.euclid-dot.inactive {
+  transition: r 0.15s ease;
+}
+
+
+/* --- Stepper Controls --- */
+
+.euclid-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.euclid-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.euclid-stepper-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  min-width: 40px;
+}
+
+.euclid-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.euclid-btn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+}
+
+.euclid-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.euclid-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.euclid-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  min-width: 24px;
+  text-align: center;
+}
+
+
+/* --- Named Rhythm Hint --- */
+
+.euclid-rhythm-name {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--accent-primary);
+  padding-top: 2px;
+}
