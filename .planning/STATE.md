@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-15)
 
 **Core value:** Anyone in the family can make music in 10 seconds — Bonki AI helps them go deeper
-**Current focus:** Phase 3 — The Knobs (PLANNING)
+**Current focus:** Phase 3 — The Knobs (EXECUTING)
 
 ## Current Position
 
 Phase: 3 of 5 (The Knobs)
-Plan: 0 of TBD in current phase
-Status: Context gathered. Ready for /gsd:plan-phase 3.
-Last activity: 2026-02-16 — Restructured roadmap: inserted Phase 3 (The Knobs) for full Strudel UI exposure. AI deferred to Phase 4. Deploy to Phase 5.
+Plan: 2 of 8 in current phase
+Status: Executing Phase 3 plans. Plans 03-01 and 03-02 complete.
+Last activity: 2026-02-17 — Completed Plan 03-02: Slider and ToggleSwitch control components.
 
-Progress: [..........] 0% (Phase 3 — not yet planned)
+Progress: [##........] 25% (Phase 3 — 2/8 plans complete)
 
 ## Accumulated Context
 
@@ -50,6 +50,11 @@ Progress: [..........] 0% (Phase 3 — not yet planned)
 - **Plan 02-09:** Full CodeView rewrite — stack() parser splits into per-row lines with colored borders, pattern char parsing (x=bright, ~=dim), moving cursor with row-colored glow on hits.
 - **Plan 02-10:** AnalyserNode tap via Object.defineProperty override on audioContext.destination. GainNode splits signal to real destination + analyser. Canvas waveform visualizer in transport bar.
 
+### Execution Decisions (Phase 3)
+
+- **Plan 03-01:** Row model with 16 instruments in 5 collapsible sections. Code generator pure functions. Effect defaults with ranges. Knob.jsx + knobs.css included as dependencies (parallel execution with 03-02).
+- **Plan 03-02:** Task 1 (Knob + knobs.css + react-knob-headless) already committed by parallel 03-01. Slider uses native range input with CSS gradient fill. ToggleSwitch uses CSS custom properties for per-instance color theming.
+
 ### Technical Reference
 
 - Strudel: `~/strudel/`, API: initStrudel(), evaluate(), hush()
@@ -80,9 +85,10 @@ Progress: [..........] 0% (Phase 3 — not yet planned)
 | 02-08 | — (cross-session) | 4 | 4 | 2026-02-16 |
 | 02-09 | — (cross-session) | 3 | 3 | 2026-02-16 |
 | 02-10 | — (cross-session) | 3 | 4 | 2026-02-16 |
+| 03-02 | 253s (4m 13s) | 2 | 2 | 2026-02-17 |
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Phase 3 context gathered — all 4 areas discussed (layout, sounds, knobs, melody). Ready for /gsd:plan-phase 3.
-Resume file: homie-beats/.planning/phases/03-the-knobs/03-CONTEXT.md
+Last session: 2026-02-17
+Stopped at: Completed 03-02-PLAN.md (control components). Plans 03-01 and 03-02 done.
+Resume file: .planning/phases/03-the-knobs/03-02-SUMMARY.md
