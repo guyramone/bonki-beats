@@ -8,7 +8,7 @@ Five phases building from "tap a pad, hear a sound, see Bonki vibe" to "jam with
 
 - [x] **Phase 1: The Pad** - Working instrument: tabbed sequencer + pads, Bonki sprite, TE aesthetic, PWA shell
 - [x] **Phase 2: The Board** - Presets, BPM control, code view, eclectic sound banks
-- [ ] **Phase 3: The Knobs** - Full Strudel power: synth selector, effects rack, scales, euclidean rhythms, sample browser
+- [x] **Phase 3: The Knobs** - Full Strudel power: synth selector, effects rack, scales, euclidean rhythms, sample browser
 - [ ] **Phase 4: The Brain** - Bonki AI chat sidebar, natural language pattern generation + teaching mode
 - [ ] **Phase 5: The Stage** - GitHub Pages deploy, cross-device polish, family jam UX
 
@@ -96,14 +96,14 @@ Plans:
 **Plans**: 8 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Row model, code generator, 16-row sequencer with collapsible sections (Wave 1)
-- [ ] 03-02-PLAN.md -- Knob, Slider, ToggleSwitch UI components with react-knob-headless (Wave 1)
-- [ ] 03-03-PLAN.md -- Sound browser: category grid, 3-level drill-down, favorites, recents, dice (Wave 2)
-- [ ] 03-04-PLAN.md -- Per-row effects rack: filter, delay, reverb, distortion, lo-fi with signal chain layout (Wave 2)
-- [ ] 03-05-PLAN.md -- Scale picker with visual keyboard + euclidean rhythm generator (Wave 2)
-- [ ] 03-06-PLAN.md -- Master effects strip with DJ filter, global transforms, per-row overrides (Wave 3)
-- [ ] 03-07-PLAN.md -- 4x8 pads with two banks + full session persistence (Wave 3)
-- [ ] 03-08-PLAN.md -- Integration: code view update, Bonki reactions, iPad verification (Wave 4)
+- [x] 03-01-PLAN.md -- Row model, code generator, 16-row sequencer with collapsible sections (Wave 1)
+- [x] 03-02-PLAN.md -- Knob, Slider, ToggleSwitch UI components with react-knob-headless (Wave 1)
+- [x] 03-03-PLAN.md -- Sound browser: category grid, 3-level drill-down, favorites, recents, dice (Wave 2)
+- [x] 03-04-PLAN.md -- Per-row effects rack: filter, delay, reverb, distortion, lo-fi with signal chain layout (Wave 2)
+- [x] 03-05-PLAN.md -- Scale picker with visual keyboard + euclidean rhythm generator (Wave 2)
+- [x] 03-06-PLAN.md -- Master effects strip with DJ filter, global transforms, per-row overrides (Wave 3)
+- [x] 03-07-PLAN.md -- 4x8 pads with two banks + full session persistence (Wave 3)
+- [x] 03-08-PLAN.md -- Integration: code view update, Bonki reactions, iPad verification (Wave 4)
 
 <task type="checkpoint:human-verify" gate="blocking">
   <what-built>HOMIE Beats Phase 3 — full Strudel power exposed through knobs and controls</what-built>
@@ -167,6 +167,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. The Pad | 4/4 | Complete | 2026-02-16 |
 | 2. The Board | 10/10 | Complete | 2026-02-16 |
-| 3. The Knobs | 0/8 | Planned | - |
+| 3. The Knobs | 8/8 | Complete | 2026-02-17 |
 | 4. The Brain | 0/TBD | Not started | - |
 | 5. The Stage | 0/TBD | Not started | - |

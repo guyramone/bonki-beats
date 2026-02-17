@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-15)
 
 **Core value:** Anyone in the family can make music in 10 seconds — Bonki AI helps them go deeper
-**Current focus:** Phase 3 — The Knobs (EXECUTING)
+**Current focus:** Phase 3 — The Knobs (COMPLETE — awaiting UAT)
 
 ## Current Position
 
 Phase: 3 of 5 (The Knobs)
-Plan: 5 of 8 in current phase
-Status: Executing Phase 3 plans. Plans 03-01 through 03-05 complete.
-Last activity: 2026-02-17 — Completed Plan 03-05: Scale picker and euclidean rhythm controls.
+Plan: 8 of 8 in current phase
+Status: Phase 3 COMPLETE. All 8 plans executed and committed. Ready for /gsd:verify-work.
+Last activity: 2026-02-17 — Completed Plan 03-08: Integration (CodeView rewrite, Bonki reactions, master FX wiring).
 
-Progress: [######....] 63% (Phase 3 — 5/8 plans complete)
+Progress: [##########] 100% (Phase 3 — 8/8 plans complete)
 
 ## Accumulated Context
 
@@ -57,6 +57,9 @@ Progress: [######....] 63% (Phase 3 — 5/8 plans complete)
 - **Plan 03-03:** Sound browser with 11-category visual grid, 20+ drum machines, 7 synth engines, 128 GM soundfonts. Three-level drill-down (Category > Bank > Sound). Tap-to-preview, double-tap-to-select. Favorites/recents in localStorage. Dice button with 2-tap confirm. Bonki category-based reactions. @strudel/soundfonts registered on audio init.
 - **Plan 03-04:** Dotted path notation for effect parameter changes (cutoff.value, cutoff.active). Filter envelope/LFO as collapsible sub-sections. Auto-enable on toggle (delay/reverb/distort set sensible defaults when activated). RowControls placed below grid row. Effect chain presets call individual change() calls (preserve unmentioned params).
 - **Plan 03-05:** Scale starts inactive (globalScale=null) until user interacts with scale picker -- no forced musical key on drum patterns. Bjorklund algorithm implemented locally (small, self-contained, avoids Strudel internal dependency). Named rhythm lookup via simple "pulses,steps" string key (10 common world rhythms). Root note auto-transpose preserves interval relationship from old root to new root for all melodic rows.
+- **Plan 03-06:** DJ filter uses `.djf()` applied outside stack() for whole-mix effect. Per-row transforms override global with null-means-use-global pattern. Speed control uses discrete steps (0.25, 0.5, 1, 2, 4) via +/- buttons. MasterStrip always visible above transport, 60px height, scrollable middle on mobile.
+- **Plan 03-07:** Session persistence via localStorage with 500ms debounce. Restore does NOT auto-play (browser autoplay policy). HUSH resets rows but does NOT clear localStorage. Only "New Session" clears. Bank A/B concept structural (both map rows 0-15, ready for future expansion). Pads show 4x8 on tablet+, 4x4 with bank tabs on mobile.
+- **Plan 03-08:** CodeView rewritten with positional row matching (activeRowIndices memo) instead of string-matching sound names. Master effects get purple-tinted `.code-line-master` styling. Bonki reactions use 3s cooldown, no-repeat logic, 14 categories with 3-5 variants each, 20% suggestion chance after 5+ events. Bonki "excited" animation deferred to Phase 4 polish.
 
 ### Technical Reference
 
@@ -97,5 +100,6 @@ Progress: [######....] 63% (Phase 3 — 5/8 plans complete)
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03-05-PLAN.md (scale picker + euclidean rhythms). Plans 03-01 through 03-05 done (wave 3 in progress).
-Resume file: .planning/phases/03-the-knobs/03-05-SUMMARY.md
+Stopped at: Phase 3 COMPLETE — all 8 plans executed. Ready for UAT verification.
+Resume file: .planning/phases/03-the-knobs/03-08-SUMMARY.md
+Next step: /gsd:verify-work 3 (or /gsd:discuss-phase 4 to plan next phase)
