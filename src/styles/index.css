@@ -554,7 +554,7 @@ button {
 
 .sequencer-cell {
   aspect-ratio: 1;
-  min-height: 48px;
+  min-height: 36px;
   background: var(--bg-tertiary);
   border: none;
   border-radius: var(--radius-sm);
@@ -576,15 +576,23 @@ button {
   transform: scale(0.9);
 }
 
-/* Per-row active colors */
-.sequencer-cell.active[data-row="0"] { background: var(--accent-warm); }       /* Kick — terracotta */
-.sequencer-cell.active[data-row="1"] { background: var(--accent-cool); }       /* Snare — sage */
-.sequencer-cell.active[data-row="2"] { background: var(--accent-primary); }    /* Hi-Hat — gold */
-.sequencer-cell.active[data-row="3"] { background: #5bc0de; }                  /* Open Hat — cyan */
-.sequencer-cell.active[data-row="4"] { background: #c678dd; }                  /* Clap — purple */
-.sequencer-cell.active[data-row="5"] { background: #e06c75; }                  /* Ride — rose */
-.sequencer-cell.active[data-row="6"] { background: #61afef; }                  /* Tom — blue */
-.sequencer-cell.active[data-row="7"] { background: #e5c07b; }                  /* Cowbell — amber */
+/* Per-row active colors (16 rows) */
+.sequencer-cell.active[data-row="0"] { background: var(--accent-warm); }       /* Kick -- terracotta */
+.sequencer-cell.active[data-row="1"] { background: var(--accent-cool); }       /* Snare -- sage */
+.sequencer-cell.active[data-row="2"] { background: var(--accent-primary); }    /* Hi-Hat -- gold */
+.sequencer-cell.active[data-row="3"] { background: #5bc0de; }                  /* Open Hat -- cyan */
+.sequencer-cell.active[data-row="4"] { background: #c678dd; }                  /* Clap -- purple */
+.sequencer-cell.active[data-row="5"] { background: #e06c75; }                  /* Ride -- rose */
+.sequencer-cell.active[data-row="6"] { background: #61afef; }                  /* Tom -- blue */
+.sequencer-cell.active[data-row="7"] { background: #e5c07b; }                  /* Cowbell -- amber */
+.sequencer-cell.active[data-row="8"] { background: #a3d977; }                  /* Rimshot -- lime */
+.sequencer-cell.active[data-row="9"] { background: #7c6bc4; }                  /* Shaker -- indigo */
+.sequencer-cell.active[data-row="10"] { background: #e87da0; }                 /* Bass 1 -- pink */
+.sequencer-cell.active[data-row="11"] { background: #56c4b8; }                 /* Bass 2 -- teal */
+.sequencer-cell.active[data-row="12"] { background: #e89650; }                 /* Synth 1 -- orange */
+.sequencer-cell.active[data-row="13"] { background: #b07cd8; }                 /* Synth 2 -- violet */
+.sequencer-cell.active[data-row="14"] { background: #5bb8e8; }                 /* Melodic 1 -- sky */
+.sequencer-cell.active[data-row="15"] { background: #e07070; }                 /* Melodic 2 -- coral */
 
 /* Beat position — inactive cells glow to show column position */
 .sequencer-cell.on-beat {
@@ -608,6 +616,14 @@ button {
 .sequencer-cell.on-beat.active[data-row="5"] { box-shadow: 0 0 16px #e06c75; }
 .sequencer-cell.on-beat.active[data-row="6"] { box-shadow: 0 0 16px #61afef; }
 .sequencer-cell.on-beat.active[data-row="7"] { box-shadow: 0 0 16px #e5c07b; }
+.sequencer-cell.on-beat.active[data-row="8"] { box-shadow: 0 0 16px #a3d977; }
+.sequencer-cell.on-beat.active[data-row="9"] { box-shadow: 0 0 16px #7c6bc4; }
+.sequencer-cell.on-beat.active[data-row="10"] { box-shadow: 0 0 16px #e87da0; }
+.sequencer-cell.on-beat.active[data-row="11"] { box-shadow: 0 0 16px #56c4b8; }
+.sequencer-cell.on-beat.active[data-row="12"] { box-shadow: 0 0 16px #e89650; }
+.sequencer-cell.on-beat.active[data-row="13"] { box-shadow: 0 0 16px #b07cd8; }
+.sequencer-cell.on-beat.active[data-row="14"] { box-shadow: 0 0 16px #5bb8e8; }
+.sequencer-cell.on-beat.active[data-row="15"] { box-shadow: 0 0 16px #e07070; }
 
 /* Trigger pop — fires when an active cell is on-beat */
 @keyframes trigger-pop {
@@ -672,6 +688,102 @@ button {
   color: var(--accent-warm);
   border-color: var(--accent-warm);
 }
+
+
+/* --- Sequencer Sections (collapsible instrument groups) --- */
+
+.sequencer-section {
+  margin-bottom: var(--space-xs);
+}
+
+.sequencer-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  color: var(--text-secondary);
+  font-family: inherit;
+  text-align: left;
+}
+
+.sequencer-section-header:hover {
+  background: var(--bg-tertiary);
+}
+
+.sequencer-section-chevron {
+  font-size: 8px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  transform: rotate(90deg);
+  color: var(--text-tertiary);
+}
+
+.sequencer-section-chevron.collapsed {
+  transform: rotate(0deg);
+}
+
+.sequencer-section-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.sequencer-section-badge {
+  font-size: 9px;
+  font-weight: 600;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border-radius: var(--radius-full);
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.sequencer-section-count {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+}
+
+.sequencer-section-rows {
+  margin-top: var(--space-xs);
+}
+
+/* Sequencer scrollable container (for many rows) */
+.sequencer {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for sequencer */
+.sequencer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sequencer::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+.sequencer::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+.sequencer::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
 
 
 /* --- Pad Grid --- */

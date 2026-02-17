@@ -1,25 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SOUNDS } from '../utils/patterns.js';
+import { ROW_COLORS, ROW_LABELS, getRowLabel } from '../utils/rowModel.js';
 
 /**
- * Sequencer — Dynamic step grid for building drum patterns.
+ * Sequencer -- 16-row step grid with collapsible instrument sections.
  *
- * Each row is a sound (kick, snare, hi-hat, etc.).
- * Each column is a step. Tap a cell to toggle it on/off.
- * Active cells show per-row colors. Grid state lives in App.
- * Supports 8 or 16 steps via stepCount prop (grid data is always 16 wide).
- * Beat position indicator sweeps across the grid during playback.
- * Active cells on-beat get a trigger-pop animation (scale + glow).
- * Downbeat markers on beats 1 and midpoint provide visual timing guides.
+ * Each section (Drums, Percussion, Bass, Synths, Melodic) is a collapsible
+ * group with a header row showing section name, chevron toggle, and active row count.
+ * Each row shows: sound label, step cells (with per-row colors), placeholder for inline controls.
+ * Beat position indicator, trigger-pop animation, and downbeat markers all preserved from Phase 2.
  *
  * @param {Object} props
- * @param {boolean[][]} props.grid - 2D array: grid[row][step] (always 16 wide)
+ * @param {Array} props.rows - Array of row model objects (from rowModel.js)
+ * @param {Array} props.sections - Array of section objects with { id, name, collapsed }
  * @param {function} props.onToggleCell - Called with (rowIndex, stepIndex)
- * @param {number} props.stepCount - Number of visible steps (8 or 16, default 8)
- * @param {function} [props.onClear] - Called to reset all sequencer cells
- * @param {number|null} [props.beatStep] - Current beat position (0-based) or null when stopped
+ * @param {number} props.stepCount - Number of visible steps (8 or 16)
+ * @param {function} props.onClear - Called to reset all sequencer cells
+ * @param {number|null} props.beatStep - Current beat position (0-based) or null when stopped
+ * @param {function} props.onToggleSection - Called with (sectionId) to toggle section collapse
  */
-function Sequencer({ grid, onToggleCell, stepCount = 8, onClear, beatStep = null }) {
+function Sequencer({ rows, sections, onToggleCell, stepCount = 8, onClear, beatStep = null, onToggleSection }) {
   // Track which cells just triggered (for pop animation)
   const [triggeredCells, setTriggeredCells] = useState(new Set());
   const prevBeatRef = useRef(null);
@@ -28,8 +27,8 @@ function Sequencer({ grid, onToggleCell, stepCount = 8, onClear, beatStep = null
     if (beatStep !== null && beatStep !== prevBeatRef.current) {
       // Find all active cells in the new beat column
       const newTriggers = new Set();
-      grid.forEach((row, rowIndex) => {
-        if (row[beatStep]) {
+      rows.forEach((row, rowIndex) => {
+        if (row.pattern.steps[beatStep]) {
           newTriggers.add(`${rowIndex}-${beatStep}`);
         }
       });
@@ -40,7 +39,14 @@ function Sequencer({ grid, onToggleCell, stepCount = 8, onClear, beatStep = null
       prevBeatRef.current = beatStep;
       return () => clearTimeout(timer);
     }
-  }, [beatStep, grid]);
+  }, [beatStep, rows]);
+
+  // Build section-to-rows mapping (preserving global row index)
+  const sectionRows = {};
+  rows.forEach((row, globalIndex) => {
+    if (!sectionRows[row.sectionId]) sectionRows[row.sectionId] = [];
+    sectionRows[row.sectionId].push({ row, globalIndex });
+  });
 
   return (
     <div className="sequencer" style={{ '--step-count': stepCount }}>
@@ -56,36 +62,74 @@ function Sequencer({ grid, onToggleCell, stepCount = 8, onClear, beatStep = null
           </button>
         )}
       </div>
-      {SOUNDS.map((sound, rowIndex) => (
-        <div className="sequencer-grid" key={sound.name}>
-          <span className="sequencer-label">{sound.name}</span>
-          {grid[rowIndex].slice(0, stepCount).map((active, stepIndex) => {
-            const isOnBeat = beatStep === stepIndex;
-            const isTriggered = triggeredCells.has(`${rowIndex}-${stepIndex}`);
-            const isDownbeat = stepIndex === 0 || stepIndex === Math.floor(stepCount / 2);
 
-            return (
-              <button
-                key={stepIndex}
-                className={[
-                  'sequencer-cell',
-                  active ? 'active' : '',
-                  isOnBeat ? 'on-beat' : '',
-                  isTriggered ? 'triggered' : '',
-                  isDownbeat ? 'downbeat' : '',
-                ].filter(Boolean).join(' ')}
-                data-row={rowIndex}
-                onClick={() => onToggleCell(rowIndex, stepIndex)}
-                aria-label={`${sound.name} step ${stepIndex + 1}`}
-                aria-pressed={active}
-                type="button"
-              />
-            );
-          })}
-        </div>
-      ))}
+      {sections.map((section) => {
+        const sectionEntries = sectionRows[section.id] || [];
+        const activeCount = sectionEntries.filter(e =>
+          e.row.pattern.steps.slice(0, stepCount).some(s => s) || e.row.pattern.euclid !== null
+        ).length;
 
-      {/* Column playhead overlay (hidden — column highlight handled by on-beat class) */}
+        return (
+          <div
+            key={section.id}
+            className={`sequencer-section${section.collapsed ? ' collapsed' : ''}`}
+          >
+            {/* Section Header */}
+            <button
+              className="sequencer-section-header"
+              onClick={() => onToggleSection && onToggleSection(section.id)}
+              type="button"
+              aria-expanded={!section.collapsed}
+              aria-label={`${section.name} section, ${section.collapsed ? 'expand' : 'collapse'}`}
+            >
+              <span className={`sequencer-section-chevron${section.collapsed ? ' collapsed' : ''}`}>
+                {'\u25B6'}
+              </span>
+              <span className="sequencer-section-name">{section.name}</span>
+              {activeCount > 0 && (
+                <span className="sequencer-section-badge">{activeCount}</span>
+              )}
+              <span className="sequencer-section-count">{sectionEntries.length}</span>
+            </button>
+
+            {/* Section Rows (hidden when collapsed) */}
+            <div className="sequencer-section-rows" style={{ display: section.collapsed ? 'none' : 'block' }}>
+              {sectionEntries.map(({ row, globalIndex }) => (
+                <div className="sequencer-grid" key={row.id}>
+                  <span className="sequencer-label" style={{ color: ROW_COLORS[globalIndex] || '#a0a0a0' }}>
+                    {getRowLabel(row, globalIndex)}
+                  </span>
+                  {row.pattern.steps.slice(0, stepCount).map((active, stepIndex) => {
+                    const isOnBeat = beatStep === stepIndex;
+                    const isTriggered = triggeredCells.has(`${globalIndex}-${stepIndex}`);
+                    const isDownbeat = stepIndex === 0 || stepIndex === Math.floor(stepCount / 2);
+
+                    return (
+                      <button
+                        key={stepIndex}
+                        className={[
+                          'sequencer-cell',
+                          active ? 'active' : '',
+                          isOnBeat ? 'on-beat' : '',
+                          isTriggered ? 'triggered' : '',
+                          isDownbeat ? 'downbeat' : '',
+                        ].filter(Boolean).join(' ')}
+                        data-row={globalIndex}
+                        onClick={() => onToggleCell(globalIndex, stepIndex)}
+                        aria-label={`${getRowLabel(row, globalIndex)} step ${stepIndex + 1}`}
+                        aria-pressed={active}
+                        type="button"
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Column playhead overlay */}
       {beatStep !== null && (
         <div
           className="sequencer-playhead"

@@ -12,16 +12,21 @@ import LayerChips from './components/LayerChips.jsx';
 import CodeView from './components/CodeView.jsx';
 import PresetGallery from './components/PresetGallery.jsx';
 import BonkiSpeech from './components/BonkiSpeech.jsx';
-import { sequencerToPattern, SOUNDS, DEFAULT_GRID } from './utils/patterns.js';
+import { DEFAULT_ROWS, SECTIONS } from './utils/rowModel.js';
+import { rowsToStrudelCode, generateDisplayCode } from './utils/codeGenerator.js';
 import { composeLayerCode, applyVolume, addLayer, removeLayer, toggleSolo, bpmToCps } from './utils/layers.js';
 
 /**
- * App — HOMIE Beats instrument shell
+ * App -- HOMIE Beats instrument shell (Phase 3 row model architecture)
  *
  * Layout: Audio init gate -> Tab bar -> Controls strip -> Layer chips -> Split pane (instrument + code view) -> Transport bar
- * Multi-layer architecture: sequencer + pads compose via stack() through the layer manager.
- * BPM via setcps(), volume via .gain(), step count toggles grid width.
- * Code view shows live Strudel code with syntax highlighting, always visible.
+ *
+ * State architecture:
+ * - `rows` = primary sequencer state (array of row model objects from rowModel.js)
+ * - `sections` = collapsible section state
+ * - `overlayLayers` = pad and preset layers (separate from sequencer rows)
+ * - Code generator produces Strudel code from rows + overlay layers
+ * - BPM via setcps(), volume via .gain(), step count toggles grid width
  */
 function App() {
   // --- Audio State ---
@@ -32,15 +37,30 @@ function App() {
   // --- UI State ---
   const [activeTab, setActiveTab] = useState('SEQUENCE');
 
-  // --- Layer State ---
-  const [layers, setLayers] = useState([]);
-  const [grid, setGrid] = useState(DEFAULT_GRID);
+  // --- Row Model State (primary sequencer state) ---
+  const [rows, setRows] = useState(() => DEFAULT_ROWS.map(r => ({
+    ...r,
+    pattern: { ...r.pattern, steps: [...r.pattern.steps] },
+    effects: { ...r.effects },
+    transforms: { ...r.transforms },
+    sound: { ...r.sound },
+  })));
+  const [sections, setSections] = useState(() => SECTIONS.map(s => ({ ...s })));
+
+  // --- Overlay Layer State (pads + presets, separate from sequencer) ---
+  const [overlayLayers, setOverlayLayers] = useState([]);
+
+  // --- Playback State ---
   const [isPlaying, setIsPlaying] = useState(false);
 
   // --- Control State ---
   const [bpm, setBpm] = useState(120);
   const [volume, setVolume] = useState(1);
   const [stepCount, setStepCount] = useState(8);
+
+  // --- Future Phase 3 state (initialized, wired in later plans) ---
+  const [globalScale, setGlobalScale] = useState(null);
+  const [masterEffects, setMasterEffects] = useState({ djf: 0.5, room: 0, delay: 0, volume: 1 });
 
   // --- Beat Position State ---
   const [beatStep, setBeatStep] = useState(null);
@@ -60,6 +80,11 @@ function App() {
   // --- Volume Throttle Ref ---
   const volumeThrottleRef = useRef(null);
 
+  // --- Evaluate Throttle Ref (rAF-based for smooth knob interaction) ---
+  const evalPendingRef = useRef(false);
+  const rowsRef = useRef(rows);
+  rowsRef.current = rows;
+
   // --- Audio Initialization ---
 
   const handleInit = async () => {
@@ -77,124 +102,159 @@ function App() {
     }
   };
 
-  // --- Layer Evaluation Engine ---
+  // --- Evaluation Engine ---
 
   /**
-   * Evaluate all active layers as a single composed Strudel pattern.
-   * If no active layers, hush and stop. Otherwise, apply volume and evaluate.
+   * Schedule a throttled evaluate call (rAF-based).
+   * Reads latest rows from ref to avoid stale closures.
    */
-  const evaluateAllLayers = useCallback((currentLayers, currentVolume) => {
-    const code = composeLayerCode(currentLayers);
-    if (!code) {
+  const scheduleEvaluate = useCallback(() => {
+    if (evalPendingRef.current) return;
+    evalPendingRef.current = true;
+    requestAnimationFrame(() => {
+      evalPendingRef.current = false;
+      const currentRows = rowsRef.current;
+      const seqCode = rowsToStrudelCode(currentRows, stepCount, globalScale, masterEffects);
+
+      // Compose sequencer code + overlay layers
+      let finalCode = '';
+      const overlayCodes = overlayLayers.filter(l => l.active).map(l => l.code);
+
+      if (seqCode && overlayCodes.length > 0) {
+        finalCode = `stack(\n  ${seqCode},\n  ${overlayCodes.join(',\n  ')}\n)`;
+      } else if (seqCode) {
+        finalCode = seqCode;
+      } else if (overlayCodes.length === 1) {
+        finalCode = overlayCodes[0];
+      } else if (overlayCodes.length > 1) {
+        finalCode = `stack(\n  ${overlayCodes.join(',\n  ')}\n)`;
+      }
+
+      if (!finalCode) {
+        hush();
+        setIsPlaying(false);
+        return;
+      }
+
+      const volumeCode = applyVolume(finalCode, volume);
+      evaluate(volumeCode);
+      setIsPlaying(true);
+    });
+  }, [stepCount, globalScale, masterEffects, overlayLayers, volume]);
+
+  /**
+   * Evaluate all layers (overlay only -- for when sequencer is not involved).
+   * Kept for pad/preset layer management compatibility.
+   */
+  const evaluateOverlayLayers = useCallback((currentOverlays, currentVolume) => {
+    const seqCode = rowsToStrudelCode(rowsRef.current, stepCount, globalScale, masterEffects);
+    const overlayCodes = currentOverlays.filter(l => l.active).map(l => l.code);
+
+    let finalCode = '';
+    if (seqCode && overlayCodes.length > 0) {
+      finalCode = `stack(\n  ${seqCode},\n  ${overlayCodes.join(',\n  ')}\n)`;
+    } else if (seqCode) {
+      finalCode = seqCode;
+    } else if (overlayCodes.length === 1) {
+      finalCode = overlayCodes[0];
+    } else if (overlayCodes.length > 1) {
+      finalCode = `stack(\n  ${overlayCodes.join(',\n  ')}\n)`;
+    }
+
+    if (!finalCode) {
       hush();
       setIsPlaying(false);
       return;
     }
-    const finalCode = applyVolume(code, currentVolume);
-    evaluate(finalCode);
+
+    const volumeCode = applyVolume(finalCode, currentVolume);
+    evaluate(volumeCode);
     setIsPlaying(true);
-  }, []);
+  }, [stepCount, globalScale, masterEffects]);
 
   // --- Sequencer Controls ---
 
-  const handleToggleCell = (row, step) => {
-    setGrid(prev => {
-      const next = prev.map(r => [...r]);
-      next[row][step] = !next[row][step];
+  const handleToggleCell = (rowIndex, stepIndex) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        const newSteps = [...r.pattern.steps];
+        newSteps[stepIndex] = !newSteps[stepIndex];
+        return { ...r, pattern: { ...r.pattern, steps: newSteps } };
+      });
 
-      // Generate pattern from updated grid
-      const pattern = sequencerToPattern(next, SOUNDS, stepCount);
+      // Update ref immediately for rAF callback
+      rowsRef.current = next;
 
-      // Update the sequencer layer
-      const seqLayer = {
-        id: 'sequencer',
-        name: 'Sequencer',
-        type: 'sequencer',
-        code: pattern,
-        active: true,
-      };
-
-      if (pattern) {
-        setLayers(prevLayers => {
-          const updatedLayers = addLayer(prevLayers, seqLayer);
-          // Live rebuild: if playing, re-evaluate with all layers
-          if (isPlaying) {
-            evaluateAllLayers(updatedLayers, volume);
-          }
-          return updatedLayers;
-        });
-      } else {
-        // No active cells in sequencer — remove the sequencer layer
-        setLayers(prevLayers => {
-          const updatedLayers = removeLayer(prevLayers, 'sequencer');
-          if (isPlaying) {
-            evaluateAllLayers(updatedLayers, volume);
-          }
-          return updatedLayers;
-        });
+      // Schedule evaluate if playing
+      if (isPlaying) {
+        scheduleEvaluate();
       }
 
-      // Flash the corresponding line in code view.
-      // sequencerToPattern generates one line per sound row inside stack(),
-      // so row 0 → line 1 (after "stack("), row N → line N+1.
-      setFlashInfo({ line: row + 1, key: Date.now() });
+      // Flash the corresponding line in code view
+      setFlashInfo({ line: rowIndex + 1, key: Date.now() });
 
       return next;
     });
   };
 
   const handlePlay = () => {
-    const pattern = sequencerToPattern(grid, SOUNDS, stepCount);
-
-    // Build the sequencer layer
-    let currentLayers = layers;
-    if (pattern) {
-      const seqLayer = {
-        id: 'sequencer',
-        name: 'Sequencer',
-        type: 'sequencer',
-        code: pattern,
-        active: true,
-      };
-      currentLayers = addLayer(layers, seqLayer);
-      setLayers(currentLayers);
-    }
-
-    // Evaluate all layers (sequencer + any existing pad layers)
-    if (currentLayers.length === 0 && !pattern) return; // Nothing to play
-    evaluateAllLayers(currentLayers, volume);
+    scheduleEvaluate();
   };
 
   const handleStop = () => {
     hush();
     setIsPlaying(false);
-    // Keep layers — stop doesn't clear
+    // Keep state -- stop doesn't clear
   };
 
   const handleClearGrid = () => {
-    setGrid(DEFAULT_GRID);
-    // Remove the sequencer layer since all cells are now off
-    setLayers(prevLayers => {
-      const updatedLayers = removeLayer(prevLayers, 'sequencer');
-      if (isPlaying) {
-        evaluateAllLayers(updatedLayers, volume);
-      }
-      return updatedLayers;
+    setRows(prev => {
+      const next = prev.map(r => ({
+        ...r,
+        pattern: { ...r.pattern, steps: Array(16).fill(false), euclid: null },
+      }));
+      rowsRef.current = next;
+      return next;
     });
+
+    if (isPlaying) {
+      // If overlays exist, re-evaluate without sequencer
+      if (overlayLayers.length > 0) {
+        evaluateOverlayLayers(overlayLayers, volume);
+      } else {
+        hush();
+        setIsPlaying(false);
+      }
+    }
   };
 
   const handleHush = () => {
     // HUSH = panic button: clear everything
     hush();
-    setLayers([]);
-    setGrid(DEFAULT_GRID);
+    setRows(prev => {
+      const next = prev.map(r => ({
+        ...r,
+        pattern: { ...r.pattern, steps: Array(16).fill(false), euclid: null },
+      }));
+      rowsRef.current = next;
+      return next;
+    });
+    setOverlayLayers([]);
     setIsPlaying(false);
+  };
+
+  // --- Section Toggle ---
+
+  const handleToggleSection = (sectionId) => {
+    setSections(prev => prev.map(s =>
+      s.id === sectionId ? { ...s, collapsed: !s.collapsed } : s
+    ));
   };
 
   // --- Pad Controls ---
 
   const handlePadTap = (pad) => {
-    // Add pad as a layer (layering, not replacing)
     const padLayer = {
       id: `pad-${pad.id}`,
       name: pad.label,
@@ -203,64 +263,49 @@ function App() {
       active: true,
     };
 
-    setLayers(prevLayers => {
-      const updatedLayers = addLayer(prevLayers, padLayer);
-      evaluateAllLayers(updatedLayers, volume);
-      return updatedLayers;
+    setOverlayLayers(prev => {
+      const updated = addLayer(prev, padLayer);
+      evaluateOverlayLayers(updated, volume);
+      return updated;
     });
   };
 
   // --- Layer Chip Controls ---
 
   const handleRemoveLayer = (layerId) => {
-    setLayers(prevLayers => {
-      const updatedLayers = removeLayer(prevLayers, layerId);
+    setOverlayLayers(prev => {
+      const updated = removeLayer(prev, layerId);
       if (isPlaying) {
-        evaluateAllLayers(updatedLayers, volume);
+        evaluateOverlayLayers(updated, volume);
       }
-      return updatedLayers;
+      return updated;
     });
   };
 
   const handleToggleSolo = (layerId) => {
-    setLayers(prevLayers => {
-      const updatedLayers = toggleSolo(prevLayers, layerId);
+    setOverlayLayers(prev => {
+      const updated = toggleSolo(prev, layerId);
       if (isPlaying) {
-        evaluateAllLayers(updatedLayers, volume);
+        evaluateOverlayLayers(updated, volume);
       }
-      return updatedLayers;
+      return updated;
     });
   };
 
   // --- Preset Controls ---
 
-  /**
-   * Preview a preset: plays the preset code immediately, sets BPM,
-   * shows Bonki reaction. Does NOT add as a layer (just an audition).
-   */
   const handlePresetSelect = (preset) => {
-    // Set BPM to preset's ideal tempo
     setBpm(preset.bpm);
     evaluate(`setcps(${bpmToCps(preset.bpm)})`);
-
-    // Preview: evaluate just the preset code (replaces current playback)
     evaluate(preset.code);
     setIsPlaying(true);
-
-    // Bonki reacts
     showBonkiMessage(preset.bonkiLine);
   };
 
-  /**
-   * Add a preset as a layer on top of the current mix.
-   * Sets BPM, adds layer, evaluates all layers, shows Bonki reaction.
-   */
   const handlePresetAdd = (preset) => {
-    // Set BPM to preset's ideal tempo
     setBpm(preset.bpm);
     evaluate(`setcps(${bpmToCps(preset.bpm)})`);
 
-    // Add preset as a new layer
     const presetLayer = {
       id: `preset-${preset.id}`,
       name: preset.name,
@@ -269,13 +314,12 @@ function App() {
       active: true,
     };
 
-    setLayers(prevLayers => {
-      const updatedLayers = addLayer(prevLayers, presetLayer);
-      evaluateAllLayers(updatedLayers, volume);
-      return updatedLayers;
+    setOverlayLayers(prev => {
+      const updated = addLayer(prev, presetLayer);
+      evaluateOverlayLayers(updated, volume);
+      return updated;
     });
 
-    // Bonki reacts
     showBonkiMessage(preset.bonkiLine);
   };
 
@@ -284,12 +328,8 @@ function App() {
   const handleBpmChange = (newBpm) => {
     setBpm(newBpm);
     evaluate(`setcps(${bpmToCps(newBpm)})`);
-    // Re-evaluate all layers so music continues at new tempo
     if (isPlaying) {
-      setLayers(currentLayers => {
-        evaluateAllLayers(currentLayers, volume);
-        return currentLayers; // Don't modify layers
-      });
+      scheduleEvaluate();
     }
   };
 
@@ -298,17 +338,12 @@ function App() {
   const handleVolumeChange = (newVolume) => {
     setVolume(newVolume);
 
-    // Throttle re-evaluation to ~100ms since volume requires full pattern re-evaluate
     if (volumeThrottleRef.current) return;
 
     volumeThrottleRef.current = setTimeout(() => {
       volumeThrottleRef.current = null;
       if (isPlaying) {
-        // Use functional state read to get current layers
-        setLayers(currentLayers => {
-          evaluateAllLayers(currentLayers, newVolume);
-          return currentLayers; // Don't modify layers
-        });
+        scheduleEvaluate();
       }
     }, 100);
   };
@@ -317,40 +352,22 @@ function App() {
 
   const handleStepCountChange = (newCount) => {
     setStepCount(newCount);
-
-    // If playing, re-evaluate with updated sequencer pattern
     if (isPlaying) {
-      const pattern = sequencerToPattern(grid, SOUNDS, newCount);
-      setLayers(prevLayers => {
-        let updatedLayers = prevLayers;
-        if (pattern) {
-          const seqLayer = {
-            id: 'sequencer',
-            name: 'Sequencer',
-            type: 'sequencer',
-            code: pattern,
-            active: true,
-          };
-          updatedLayers = addLayer(prevLayers, seqLayer);
-        } else {
-          updatedLayers = removeLayer(prevLayers, 'sequencer');
-        }
-        evaluateAllLayers(updatedLayers, volume);
-        return updatedLayers;
-      });
+      // scheduleEvaluate will pick up new stepCount on next rAF
+      // (but stepCount is captured in closure -- need to trigger re-evaluate)
+      // Use setTimeout to let React state update first
+      setTimeout(() => scheduleEvaluate(), 0);
     }
   };
 
-  // --- Beat Position Tracking (Strudel scheduler — audio-accurate) ---
+  // --- Beat Position Tracking (Strudel scheduler -- audio-accurate) ---
   useEffect(() => {
     if (isPlaying) {
       const tick = () => {
         const scheduler = getScheduler();
         if (scheduler && scheduler.now) {
-          // scheduler.now() returns cycle position (e.g., 0.0, 0.25, 0.5, 0.75, 1.0...)
-          // Each cycle = 1 bar. Steps per cycle = stepCount.
           const cyclePos = scheduler.now();
-          const fractional = cyclePos % 1; // 0-1 within current cycle
+          const fractional = cyclePos % 1;
           const currentStep = Math.floor(fractional * stepCount);
           setBeatStep(currentStep);
         }
@@ -372,8 +389,19 @@ function App() {
     }
   }, [isPlaying, stepCount]);
 
-  // --- Code View: derive display code from layers (no volume wrapping — show clean code) ---
-  const displayCode = composeLayerCode(layers);
+  // --- Code View: derive display code from rows + overlay layers ---
+  const seqDisplayCode = generateDisplayCode(rows, stepCount, globalScale);
+  const overlayCodes = overlayLayers.filter(l => l.active).map(l => l.code);
+  let displayCode = '';
+  if (seqDisplayCode && overlayCodes.length > 0) {
+    displayCode = `stack(\n  ${seqDisplayCode},\n  ${overlayCodes.join(',\n  ')}\n)`;
+  } else if (seqDisplayCode) {
+    displayCode = seqDisplayCode;
+  } else if (overlayCodes.length === 1) {
+    displayCode = overlayCodes[0];
+  } else if (overlayCodes.length > 1) {
+    displayCode = `stack(\n  ${overlayCodes.join(',\n  ')}\n)`;
+  }
 
   // --- Code Click: read-only gatekeeping via Bonki ---
   const handleCodeClick = () => {
@@ -393,11 +421,13 @@ function App() {
             />
             <Sequencer
               key={stepCount}
-              grid={grid}
+              rows={rows}
+              sections={sections}
               onToggleCell={handleToggleCell}
               stepCount={stepCount}
               onClear={handleClearGrid}
               beatStep={beatStep}
+              onToggleSection={handleToggleSection}
             />
           </>
         );
@@ -408,7 +438,7 @@ function App() {
           <div className="ai-placeholder">
             <span className="placeholder-icon">&#128564;</span>
             <p className="placeholder-title">Bonki is napping...</p>
-            <p>AI comes in Phase 3</p>
+            <p>AI comes in Phase 4</p>
           </div>
         );
       default:
@@ -420,7 +450,7 @@ function App() {
 
   return (
     <div className="app">
-      {/* Audio Init Overlay — gates Strudel behind user gesture */}
+      {/* Audio Init Overlay -- gates Strudel behind user gesture */}
       {!audioReady && (
         <div className="init-overlay">
           <h1>HOMIE Beats</h1>
@@ -442,7 +472,7 @@ function App() {
       {/* Tab Navigation */}
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Controls Strip — always visible across all tabs */}
+      {/* Controls Strip -- always visible across all tabs */}
       <ControlStrip
         bpm={bpm}
         onBpmChange={handleBpmChange}
@@ -453,10 +483,10 @@ function App() {
         isPlaying={isPlaying}
       />
 
-      {/* Layer Chips — visible when layers exist */}
-      {layers.length > 0 && (
+      {/* Layer Chips -- visible when overlay layers exist */}
+      {overlayLayers.length > 0 && (
         <LayerChips
-          layers={layers}
+          layers={overlayLayers}
           onRemove={handleRemoveLayer}
           onToggleSolo={handleToggleSolo}
         />
@@ -479,7 +509,7 @@ function App() {
         </aside>
       </div>
 
-      {/* Bonki Speech Bubble — triggered by preset loads and code view click */}
+      {/* Bonki Speech Bubble -- triggered by preset loads and code view click */}
       <BonkiSpeech message={bonkiMessage} messageKey={bonkiMessageKey} />
 
       {/* Transport Bar */}

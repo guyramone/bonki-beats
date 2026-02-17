@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript';
-import { ROW_COLORS, SOUNDS } from '../utils/patterns.js';
+import { ROW_COLORS, ROW_LABELS } from '../utils/rowModel.js';
+import { SOUNDS } from '../utils/patterns.js';
 import '../styles/code-view.css';
 
 /**
@@ -350,15 +351,58 @@ function CodeView({ code, onCodeClick, flashLine = null, flashKey, beatStep = nu
 }
 
 /**
- * Find the SOUNDS array index for a code statement by matching sample name.
+ * Sound identifiers for each row (16 rows).
+ * Used to match code statements back to row indices for color-coding.
+ * Order matches DEFAULT_ROWS in rowModel.js.
+ */
+const ROW_SOUND_IDENTIFIERS = [
+  'RolandTR808_bd', 'RolandTR909_sd', 'RolandTR808_hh', 'RolandTR808_oh',
+  'RolandTR808_cp', 'RolandTR808_rd', 'RolandTR808_ht', 'RolandTR808_cb',
+  'RolandTR909_rim',
+  // Row 9 (Shaker) also uses RolandTR808_hh but with .n(1) — needs special handling
+  null,
+  // Synth/soundfont rows identified by engine name
+  null, null, null, null, null, null,
+];
+
+/**
+ * Find the row index for a code statement by matching sound identifiers.
+ * Checks both sample names and synth/soundfont patterns.
  * Returns -1 if no match found.
  */
 function findSoundIndex(statement) {
+  // First try exact sample match for drum/perc rows
+  for (let i = 0; i < ROW_SOUND_IDENTIFIERS.length; i++) {
+    const id = ROW_SOUND_IDENTIFIERS[i];
+    if (id && statement.includes(id)) {
+      // Special case: RolandTR808_hh appears in both row 2 and row 9
+      // Row 9 has .n(1), row 2 does not
+      if (id === 'RolandTR808_hh' && statement.includes('.n(1)')) {
+        return 9; // Shaker
+      }
+      return i;
+    }
+  }
+
+  // Try SOUNDS array (legacy compatibility)
   for (let i = 0; i < SOUNDS.length; i++) {
     if (statement.includes(SOUNDS[i].sample)) {
       return i;
     }
   }
+
+  // Try synth/soundfont rows by engine name
+  if (statement.includes('"sawtooth"')) {
+    // Bass 1 or Bass 2 — check for note to distinguish
+    return statement.includes('.orbit(11)') ? 10 : (statement.includes('.orbit(12)') ? 11 : 10);
+  }
+  if (statement.includes('"supersaw"')) {
+    return statement.includes('.orbit(14)') ? 13 : 12;
+  }
+  if (statement.includes('"gm_piano"')) {
+    return statement.includes('.orbit(16)') ? 15 : 14;
+  }
+
   return -1;
 }
 
