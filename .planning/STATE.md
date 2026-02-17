@@ -52,7 +52,7 @@ Progress: [##........] 25% (Phase 3 — 2/8 plans complete)
 
 ### Execution Decisions (Phase 3)
 
-- **Plan 03-01:** Row model with 16 instruments in 5 collapsible sections. Code generator pure functions. Effect defaults with ranges. Knob.jsx + knobs.css included as dependencies (parallel execution with 03-02).
+- **Plan 03-01:** Row model as single source of truth (replacing grid+SOUNDS). 16 instruments in 5 collapsible sections. Pure code generator (rowsToStrudelCode/generateDisplayCode). Effect defaults with ranges. rAF-throttled evaluate pipeline. Overlay layers separated from sequencer. 36px cells + scrollable sequencer for 16 rows.
 - **Plan 03-02:** Task 1 (Knob + knobs.css + react-knob-headless) already committed by parallel 03-01. Slider uses native range input with CSS gradient fill. ToggleSwitch uses CSS custom properties for per-instance color theming.
 
 ### Technical Reference
@@ -85,10 +85,11 @@ Progress: [##........] 25% (Phase 3 — 2/8 plans complete)
 | 02-08 | — (cross-session) | 4 | 4 | 2026-02-16 |
 | 02-09 | — (cross-session) | 3 | 3 | 2026-02-16 |
 | 02-10 | — (cross-session) | 3 | 4 | 2026-02-16 |
+| 03-01 | 404s (6m 44s) | 2 | 8 | 2026-02-17 |
 | 03-02 | 253s (4m 13s) | 2 | 2 | 2026-02-17 |
 
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03-02-PLAN.md (control components). Plans 03-01 and 03-02 done.
-Resume file: .planning/phases/03-the-knobs/03-02-SUMMARY.md
+Stopped at: Completed 03-01-PLAN.md (row model + code generator + 16-row sequencer). Plans 03-01 and 03-02 done (wave 1 complete).
+Resume file: .planning/phases/03-the-knobs/03-01-SUMMARY.md
