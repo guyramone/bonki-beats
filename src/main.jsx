@@ -5,6 +5,7 @@ import App from './App.jsx';
 import './styles/index.css';
 import './styles/knobs.css';
 import './styles/scale-picker.css';
+import './styles/effects-rack.css';
 
 // Audio initialization state (module-level)
 let initialized = false;
