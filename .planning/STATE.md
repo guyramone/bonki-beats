@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-15)
 ## Current Position
 
 Phase: 3 of 5 (The Knobs)
-Plan: 4 of 8 in current phase
-Status: Executing Phase 3 plans. Plans 03-01 through 03-04 complete.
-Last activity: 2026-02-17 — Completed Plan 03-04: Per-row effects rack with signal chain layout.
+Plan: 5 of 8 in current phase
+Status: Executing Phase 3 plans. Plans 03-01 through 03-05 complete.
+Last activity: 2026-02-17 — Completed Plan 03-05: Scale picker and euclidean rhythm controls.
 
-Progress: [#####.....] 50% (Phase 3 — 4/8 plans complete)
+Progress: [######....] 63% (Phase 3 — 5/8 plans complete)
 
 ## Accumulated Context
 
@@ -56,6 +56,7 @@ Progress: [#####.....] 50% (Phase 3 — 4/8 plans complete)
 - **Plan 03-02:** Task 1 (Knob + knobs.css + react-knob-headless) already committed by parallel 03-01. Slider uses native range input with CSS gradient fill. ToggleSwitch uses CSS custom properties for per-instance color theming.
 - **Plan 03-03:** Sound browser with 11-category visual grid, 20+ drum machines, 7 synth engines, 128 GM soundfonts. Three-level drill-down (Category > Bank > Sound). Tap-to-preview, double-tap-to-select. Favorites/recents in localStorage. Dice button with 2-tap confirm. Bonki category-based reactions. @strudel/soundfonts registered on audio init.
 - **Plan 03-04:** Dotted path notation for effect parameter changes (cutoff.value, cutoff.active). Filter envelope/LFO as collapsible sub-sections. Auto-enable on toggle (delay/reverb/distort set sensible defaults when activated). RowControls placed below grid row. Effect chain presets call individual change() calls (preserve unmentioned params).
+- **Plan 03-05:** Scale starts inactive (globalScale=null) until user interacts with scale picker -- no forced musical key on drum patterns. Bjorklund algorithm implemented locally (small, self-contained, avoids Strudel internal dependency). Named rhythm lookup via simple "pulses,steps" string key (10 common world rhythms). Root note auto-transpose preserves interval relationship from old root to new root for all melodic rows.
 
 ### Technical Reference
 
@@ -91,9 +92,10 @@ Progress: [#####.....] 50% (Phase 3 — 4/8 plans complete)
 | 03-02 | 253s (4m 13s) | 2 | 2 | 2026-02-17 |
 | 03-03 | 431s (7m 11s) | 2 | 9 | 2026-02-17 |
 | 03-04 | 316s (5m 16s) | 2 | 6 | 2026-02-17 |
+| 03-05 | 481s (8m 1s) | 2 | 10 | 2026-02-17 |
 
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03-03-PLAN.md (sound browser). Plans 03-01, 03-02, 03-03, 03-04 done (wave 2 complete).
-Resume file: .planning/phases/03-the-knobs/03-03-SUMMARY.md
+Stopped at: Completed 03-05-PLAN.md (scale picker + euclidean rhythms). Plans 03-01 through 03-05 done (wave 3 in progress).
+Resume file: .planning/phases/03-the-knobs/03-05-SUMMARY.md
