@@ -319,11 +319,9 @@ function App() {
           if (typeof newEffects[param] === 'object' && newEffects[param] !== null) {
             newEffects[param] = { ...newEffects[param], [field]: value };
           } else {
-            // If the param was not an object (shouldn't happen with current model, but safe)
             newEffects[param] = value;
           }
         } else {
-          // Simple path like 'filterType', 'delaytime', 'crush', etc.
           newEffects[paramPath] = value;
         }
 
@@ -335,6 +333,16 @@ function App() {
       if (isPlaying) {
         scheduleEvaluate();
       }
+
+      // Bonki reacts to effect activation
+      const baseParam = paramPath.split('.')[0];
+      if (paramPath.endsWith('.active') && value) {
+        if (baseParam === 'room') triggerBonkiReaction('reverb');
+        else if (baseParam === 'delay') triggerBonkiReaction('delay');
+        else if (baseParam === 'distort') triggerBonkiReaction('distortion');
+        else if (baseParam === 'cutoff' || baseParam === 'hcutoff') triggerBonkiReaction('filter');
+      }
+      if (baseParam === 'crush' || baseParam === 'coarse') triggerBonkiReaction('lofi');
 
       return next;
     });
@@ -431,6 +439,11 @@ function App() {
     if (isPlaying) {
       scheduleEvaluate();
     }
+
+    // Bonki reacts to sound type
+    if (sound.type === 'synth') triggerBonkiReaction('synth');
+    else if (sound.type === 'soundfont') triggerBonkiReaction('soundfont');
+    else triggerBonkiReaction('drumSwap');
   };
 
   const handleCloseSoundBrowser = () => {
@@ -450,6 +463,7 @@ function App() {
       if (isPlaying) scheduleEvaluate();
       return next;
     });
+    triggerBonkiReaction('euclidean');
   };
 
   const handleSwitchToEuclid = (rowIndex) => {
@@ -639,6 +653,15 @@ function App() {
     if (isPlaying) {
       setTimeout(() => scheduleEvaluate(), 0);
     }
+
+    // Bonki reacts to scale type
+    if (newScale === 'minor' || newScale === 'dorian' || newScale === 'phrygian') {
+      triggerBonkiReaction('scaleMinor');
+    } else if (newScale === 'major' || newScale === 'mixolydian' || newScale === 'lydian') {
+      triggerBonkiReaction('scaleMajor');
+    } else {
+      triggerBonkiReaction('scaleExotic');
+    }
   };
 
   const handleNotePreview = (noteName, octave) => {
@@ -679,6 +702,10 @@ function App() {
     if (isPlaying) {
       setTimeout(() => scheduleEvaluate(), 0);
     }
+
+    if (param === 'djf' && value !== 0.5) triggerBonkiReaction('djFilter');
+    else if (param === 'room' && value > 0) triggerBonkiReaction('reverb');
+    else if (param === 'delay' && value > 0) triggerBonkiReaction('delay');
   };
 
   const handleGlobalTransformChange = (param, value) => {
@@ -954,6 +981,7 @@ function App() {
             flashKey={flashInfo?.key}
             beatStep={beatStep}
             stepCount={stepCount}
+            rows={rows}
           />
         </aside>
       </div>
