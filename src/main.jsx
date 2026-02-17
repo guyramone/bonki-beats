@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { initStrudel, samples, getAudioContext as strudelGetAudioContext } from '@strudel/web';
+import { initStrudel, samples, getAudioContext as strudelGetAudioContext, getSuperdoughAudioController } from '@strudel/web';
 import App from './App.jsx';
 import './styles/index.css';
 
@@ -35,29 +35,19 @@ export async function initAudio() {
 
     initialized = true;
 
-    // Set up audio analysis tap for Visualizer (non-fatal — visualizer is optional).
-    // Use superdough's getAudioContext (the real AudioContext all Strudel audio flows through).
-    // Override its destination with a GainNode that splits the signal
-    // to both the real destination and our AnalyserNode.
+    // Tap superdough's master gain for visualization (non-destructive — no destination override).
+    // The audio chain: Orbits → channelMerger → destinationGain → audioContext.destination.
+    // We connect our AnalyserNode as a parallel output from destinationGain.
     try {
       const audioCtx = strudelGetAudioContext();
-      if (audioCtx && audioCtx.destination) {
-        const realDestination = audioCtx.destination;
-
+      const controller = getSuperdoughAudioController();
+      const masterGain = controller?.output?.destinationGain;
+      if (audioCtx && masterGain) {
         analyserNode = audioCtx.createAnalyser();
         analyserNode.fftSize = 512;
         analyserNode.smoothingTimeConstant = 0.8;
-
-        const masterTap = audioCtx.createGain();
-        masterTap.gain.value = 1;
-        masterTap.connect(realDestination);
-        masterTap.connect(analyserNode);
-
-        Object.defineProperty(audioCtx, 'destination', {
-          get: () => masterTap,
-          configurable: true,
-        });
-        console.log('Audio analyser tap connected via superdough AudioContext');
+        masterGain.connect(analyserNode);
+        console.log('AnalyserNode tapped into superdough master gain (non-destructive)');
       }
     } catch (analyserErr) {
       console.warn('Visualizer analyser setup failed (non-fatal):', analyserErr.message);

@@ -485,7 +485,6 @@ function App() {
       {/* Transport Bar */}
       <Transport onPlay={handlePlay} onStop={handleStop} onHush={handleHush} isPlaying={isPlaying}>
         <Visualizer analyser={getAnalyser()} isPlaying={isPlaying} />
-        <div className="transport-spacer" />
         <Bonki state={isPlaying ? 'vibing' : 'idle'} bpm={bpm} />
       </Transport>
     </div>
