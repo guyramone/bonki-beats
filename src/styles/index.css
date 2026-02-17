@@ -786,67 +786,128 @@ button {
 
 
 
-/* --- Pad Grid --- */
+/* --- Pad Grid (4x8 with bank tabs) --- */
 
-.pads-grid {
+.pads-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Bank selector tabs (A / B) */
+.bank-tabs {
+  display: flex;
+  gap: var(--space-xs);
+  padding: 0 var(--space-sm);
+}
+
+.bank-tab {
+  padding: 4px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bank-tab.active {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
+}
+
+.bank-tab:hover:not(.active) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Pad bank: 4 columns grid */
+.pads-bank {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   padding: var(--space-sm);
 }
 
+/* Individual pad */
 .pad {
-  min-height: 80px;
+  min-height: 64px;
   background: var(--bg-tertiary);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   transition: all 0.1s ease;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
+  padding: var(--space-xs);
 }
 
 .pad:active {
   transform: scale(0.95);
 }
 
-/* Color-coded category borders */
-.pad-warm {
-  border-left: 3px solid var(--accent-warm);
+.pad-label {
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
-.pad-cool {
-  border-left: 3px solid var(--accent-cool);
+.pad-sound {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.pad-gold {
-  border-left: 3px solid var(--accent-primary);
-}
-
-/* Flash feedback (200ms burst on tap) */
+/* Flash feedback (200ms burst on tap -- background set via inline style) */
 .pad.flash {
-  background: var(--bg-secondary);
+  transform: scale(0.95);
 }
 
-.pad-warm.flash {
-  background: var(--accent-warm);
-  color: var(--bg-primary);
+/* Mobile: show only bank-switched 4x4 */
+.pads-mobile {
+  display: block;
 }
 
-.pad-cool.flash {
-  background: var(--accent-cool);
-  color: var(--bg-primary);
+.pads-desktop {
+  display: none;
 }
 
-.pad-gold.flash {
-  background: var(--accent-primary);
-  color: var(--bg-primary);
+/* Tablet+: show full 4x8 (both banks visible) */
+@media (min-width: 768px) {
+  .pads-mobile {
+    display: none;
+  }
+
+  .pads-desktop {
+    display: block;
+  }
+
+  .pad {
+    min-height: 72px;
+  }
+}
+
+/* Desktop: bigger pads */
+@media (min-width: 1024px) {
+  .pad {
+    min-height: 80px;
+  }
 }
 
 

@@ -14,10 +14,12 @@ import PresetGallery from './components/PresetGallery.jsx';
 import BonkiSpeech from './components/BonkiSpeech.jsx';
 import ScalePicker from './components/ScalePicker.jsx';
 import SoundBrowser from './components/SoundBrowser.jsx';
+import MasterStrip from './components/MasterStrip.jsx';
 import { DEFAULT_ROWS, SECTIONS, ROW_COLORS, getRowLabel } from './utils/rowModel.js';
 import { rowsToStrudelCode, generateDisplayCode } from './utils/codeGenerator.js';
 import { composeLayerCode, applyVolume, addLayer, removeLayer, toggleSolo, bpmToCps } from './utils/layers.js';
 import { transposeNote, noteNameToIndex, NOTE_NAMES } from './utils/scaleData.js';
+import { useSessionPersistence, loadInitialState, clearSession } from './hooks/useSessionPersistence.js';
 
 /**
  * App -- HOMIE Beats instrument shell (Phase 3 row model architecture)
@@ -40,14 +42,34 @@ function App() {
   // --- UI State ---
   const [activeTab, setActiveTab] = useState('SEQUENCE');
 
+  // --- Session Restore (from localStorage) ---
+  const savedSession = useRef(loadInitialState()).current;
+
   // --- Row Model State (primary sequencer state) ---
-  const [rows, setRows] = useState(() => DEFAULT_ROWS.map(r => ({
-    ...r,
-    pattern: { ...r.pattern, steps: [...r.pattern.steps] },
-    effects: { ...r.effects },
-    transforms: { ...r.transforms },
-    sound: { ...r.sound },
-  })));
+  const [rows, setRows] = useState(() => {
+    if (savedSession?.rows) {
+      // Merge saved rows with DEFAULT_ROWS structure (fill missing fields)
+      return DEFAULT_ROWS.map((def, i) => {
+        const saved = savedSession.rows[i];
+        if (!saved) return { ...def, pattern: { ...def.pattern, steps: [...def.pattern.steps] }, effects: { ...def.effects }, transforms: { ...def.transforms }, sound: { ...def.sound } };
+        return {
+          ...def,
+          ...saved,
+          pattern: { ...def.pattern, ...saved.pattern, steps: saved.pattern?.steps ? [...saved.pattern.steps] : [...def.pattern.steps] },
+          effects: { ...def.effects, ...saved.effects },
+          transforms: { ...def.transforms, ...saved.transforms },
+          sound: { ...def.sound, ...saved.sound },
+        };
+      });
+    }
+    return DEFAULT_ROWS.map(r => ({
+      ...r,
+      pattern: { ...r.pattern, steps: [...r.pattern.steps] },
+      effects: { ...r.effects },
+      transforms: { ...r.transforms },
+      sound: { ...r.sound },
+    }));
+  });
   const [sections, setSections] = useState(() => SECTIONS.map(s => ({ ...s })));
 
   // --- Overlay Layer State (pads + presets, separate from sequencer) ---
@@ -57,14 +79,17 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   // --- Control State ---
-  const [bpm, setBpm] = useState(120);
-  const [volume, setVolume] = useState(1);
-  const [stepCount, setStepCount] = useState(8);
+  const [bpm, setBpm] = useState(savedSession?.bpm ?? 120);
+  const [volume, setVolume] = useState(savedSession?.volume ?? 1);
+  const [stepCount, setStepCount] = useState(savedSession?.stepCount ?? 8);
 
   // --- Scale State ---
-  const [rootNote, setRootNote] = useState('C');
-  const [scaleName, setScaleName] = useState('major');
+  const [rootNote, setRootNote] = useState(savedSession?.rootNote ?? 'C');
+  const [scaleName, setScaleName] = useState(savedSession?.scaleName ?? 'major');
   const [scalePickerOpen, setScalePickerOpen] = useState(false);
+
+  // --- Pad Bank State ---
+  const [padBank, setPadBank] = useState('A');
 
   // --- Sound Browser State ---
   const [soundBrowserOpen, setSoundBrowserOpen] = useState(false);
@@ -72,11 +97,18 @@ function App() {
 
   // Compute globalScale from rootNote + scaleName
   // (null means no scale applied -- only non-null when scale picker has been used)
-  const [scaleActive, setScaleActive] = useState(false);
+  const [scaleActive, setScaleActive] = useState(savedSession?.scaleActive ?? false);
   const globalScale = scaleActive ? `${rootNote}:${scaleName}` : null;
 
   // --- Master Effects State ---
-  const [masterEffects, setMasterEffects] = useState({ djf: 0.5, room: 0, delay: 0, volume: 1 });
+  const [masterEffects, setMasterEffects] = useState(
+    savedSession?.masterEffects ?? { djf: 0.5, room: 0, delay: 0, volume: 1 }
+  );
+
+  // --- Global Transforms State ---
+  const [globalTransforms, setGlobalTransforms] = useState(
+    savedSession?.globalTransforms ?? { swing: 0, degradeBy: 0, speed: 1, reverse: false }
+  );
 
   // --- Beat Position State ---
   const [beatStep, setBeatStep] = useState(null);
@@ -453,20 +485,31 @@ function App() {
 
   // --- Pad Controls ---
 
-  const handlePadTap = (pad) => {
-    const padLayer = {
-      id: `pad-${pad.id}`,
-      name: pad.label,
-      type: 'pad',
-      code: pad.pattern,
-      active: true,
-    };
+  /**
+   * Trigger a one-shot sound for the given row index.
+   * Evaluates a single note/sample as a quick fire-and-forget, independent of sequencer.
+   */
+  const handlePadTap = (rowIndex) => {
+    const row = rows[rowIndex];
+    if (!row) return;
 
-    setOverlayLayers(prev => {
-      const updated = addLayer(prev, padLayer);
-      evaluateOverlayLayers(updated, volume);
-      return updated;
-    });
+    let oneShotCode = '';
+
+    if (row.sound.type === 'sample') {
+      oneShotCode = `s("${row.sound.bank}_${row.sound.name}")`;
+      if (row.sound.n > 0) oneShotCode += `.n(${row.sound.n})`;
+    } else if (row.sound.type === 'synth') {
+      const noteStr = row.note || `c${row.octave}`;
+      oneShotCode = `note("${noteStr}").s("${row.sound.bank}").release(0.3)`;
+    } else if (row.sound.type === 'soundfont') {
+      const noteStr = row.note || `c${row.octave}`;
+      oneShotCode = `note("${noteStr}").s("${row.sound.bank}").release(0.3)`;
+    }
+
+    if (oneShotCode) {
+      oneShotCode += `.gain(${row.volume.toFixed(2)})`;
+      evaluate(oneShotCode);
+    }
   };
 
   // --- Layer Chip Controls ---
@@ -629,6 +672,112 @@ function App() {
     setScalePickerOpen(prev => !prev);
   };
 
+  // --- Master Effect Controls ---
+
+  const handleMasterEffectChange = (param, value) => {
+    setMasterEffects(prev => ({ ...prev, [param]: value }));
+    if (isPlaying) {
+      setTimeout(() => scheduleEvaluate(), 0);
+    }
+  };
+
+  const handleGlobalTransformChange = (param, value) => {
+    setGlobalTransforms(prev => ({ ...prev, [param]: value }));
+    if (isPlaying) {
+      setTimeout(() => scheduleEvaluate(), 0);
+    }
+  };
+
+  // --- New Session ---
+
+  const handleNewSession = () => {
+    clearSession();
+    setRows(DEFAULT_ROWS.map(r => ({
+      ...r,
+      pattern: { ...r.pattern, steps: [...r.pattern.steps] },
+      effects: { ...r.effects },
+      transforms: { ...r.transforms },
+      sound: { ...r.sound },
+    })));
+    setBpm(120);
+    setVolume(1);
+    setStepCount(8);
+    setRootNote('C');
+    setScaleName('major');
+    setScaleActive(false);
+    setMasterEffects({ djf: 0.5, room: 0, delay: 0, volume: 1 });
+    setGlobalTransforms({ swing: 0, degradeBy: 0, speed: 1, reverse: false });
+    setOverlayLayers([]);
+    hush();
+    setIsPlaying(false);
+    showBonkiMessage("fresh start! let's make something new");
+  };
+
+  // --- Bonki Reaction System (throttled, randomized) ---
+
+  const bonkiCooldownRef = useRef(0);
+  const lastBonkiMsgRef = useRef('');
+  const bonkiEventCountRef = useRef(0);
+
+  const BONKI_REACTIONS = {
+    reverb: ["ooh, spacey!", "floaty vibes", "big room energy", "dreamy!"],
+    delay: ["echo echo echo...", "that's got bounce", "trippy!", "delayed gratification"],
+    distortion: ["crunch time!", "now we're cooking", "gnarly!", "raw power!"],
+    lofi: ["Game Boy vibes!", "retro!", "perfectly imperfect", "lo-fi chill"],
+    filter: ["sweep it!", "wah wah!", "filtered!", "smooth operator"],
+    synth: ["synthesized!", "buzzy!", "phat!", "electronic vibes"],
+    soundfont: ["fancy!", "orchestral!", "classy choice", "going acoustic"],
+    drumSwap: ["classic!", "fresh kit!", "nice swap", "new flavor"],
+    scaleMinor: ["ooh, minor vibes", "moody!", "dark side energy"],
+    scaleMajor: ["major key energy!", "bright and happy", "sunshine vibes"],
+    scaleExotic: ["getting exotic!", "world sounds!", "adventurous!"],
+    euclidean: ["world rhythm!", "mathematical!", "Bjorklund approved"],
+    djFilter: ["dropping it!", "filter time!", "sweep sweep!"],
+    randomize: ["surprise me!", "controlled chaos!", "what did we get?"],
+  };
+
+  const BONKI_SUGGESTIONS = [
+    "try adding some reverb to the mix!",
+    "that kick pairs nice with a supersaw bass...",
+    "try euclidean 5,16 for a Bossa Nova feel",
+    "sweep the DJ filter for a drop!",
+    "try the Lo-Fi preset for chill vibes",
+    "add some delay for extra bounce",
+  ];
+
+  const triggerBonkiReaction = useCallback((category) => {
+    const now = Date.now();
+    if (now - bonkiCooldownRef.current < 3000) return;
+
+    const messages = BONKI_REACTIONS[category];
+    if (!messages) return;
+
+    // Pick random, avoid repeat
+    let msg;
+    do {
+      msg = messages[Math.floor(Math.random() * messages.length)];
+    } while (msg === lastBonkiMsgRef.current && messages.length > 1);
+
+    bonkiCooldownRef.current = now;
+    lastBonkiMsgRef.current = msg;
+    showBonkiMessage(msg);
+
+    // Occasional suggestion (20% chance after 5+ events)
+    bonkiEventCountRef.current++;
+    if (bonkiEventCountRef.current > 5 && Math.random() < 0.2) {
+      setTimeout(() => {
+        const suggestion = BONKI_SUGGESTIONS[Math.floor(Math.random() * BONKI_SUGGESTIONS.length)];
+        showBonkiMessage(suggestion);
+      }, 4000);
+    }
+  }, []);
+
+  // --- Session Persistence ---
+  useSessionPersistence({
+    rows, bpm, stepCount, volume, rootNote, scaleName,
+    scaleActive, masterEffects, globalTransforms,
+  });
+
   // --- Beat Position Tracking (Strudel scheduler -- audio-accurate) ---
   useEffect(() => {
     if (isPlaying) {
@@ -659,7 +808,7 @@ function App() {
   }, [isPlaying, stepCount]);
 
   // --- Code View: derive display code from rows + overlay layers ---
-  const seqDisplayCode = generateDisplayCode(rows, stepCount, globalScale);
+  const seqDisplayCode = generateDisplayCode(rows, stepCount, globalScale, masterEffects);
   const overlayCodes = overlayLayers.filter(l => l.active).map(l => l.code);
   let displayCode = '';
   if (seqDisplayCode && overlayCodes.length > 0) {
@@ -718,11 +867,19 @@ function App() {
               onEuclideanChange={handleEuclideanChange}
               onSwitchToEuclid={handleSwitchToEuclid}
               onSwitchToManual={handleSwitchToManual}
+              globalTransforms={globalTransforms}
             />
           </>
         );
       case 'PADS':
-        return <Pads onPadTap={handlePadTap} />;
+        return (
+          <Pads
+            rows={rows}
+            onPadTap={handlePadTap}
+            activeBank={padBank}
+            onBankChange={setPadBank}
+          />
+        );
       case 'AI':
         return (
           <div className="ai-placeholder">
@@ -812,6 +969,14 @@ function App() {
 
       {/* Bonki Speech Bubble -- triggered by preset loads and code view click */}
       <BonkiSpeech message={bonkiMessage} messageKey={bonkiMessageKey} />
+
+      {/* Master Effects Strip -- always visible above transport */}
+      <MasterStrip
+        masterEffects={masterEffects}
+        onMasterEffectChange={handleMasterEffectChange}
+        globalTransforms={globalTransforms}
+        onGlobalTransformChange={handleGlobalTransformChange}
+      />
 
       {/* Transport Bar */}
       <Transport onPlay={handlePlay} onStop={handleStop} onHush={handleHush} isPlaying={isPlaying}>

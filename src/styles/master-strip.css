@@ -1,0 +1,155 @@
+/* ============================================================
+   HOMIE Beats -- Master Effects Strip
+   Always visible above the transport bar. DJ Filter (featured),
+   Master FX (reverb/delay), Global Transforms (swing/prob),
+   and Master Volume.
+   ============================================================ */
+
+/* --- Master Strip Container --- */
+
+.master-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--bg-tertiary);
+  border-bottom: 1px solid var(--bg-tertiary);
+  flex-shrink: 0;
+  z-index: 50;
+  min-height: 60px;
+  max-height: 80px;
+}
+
+
+/* --- DJ Filter (featured, left) --- */
+
+.master-dj-filter {
+  flex-shrink: 0;
+}
+
+.dj-filter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+/* --- Separator Line --- */
+
+.master-separator {
+  width: 1px;
+  height: 32px;
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
+}
+
+
+/* --- Scrollable Middle (FX + Transforms) --- */
+
+.master-middle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.master-middle::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* --- Master FX Group (reverb, delay) --- */
+
+.master-fx-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+
+/* --- Global Transforms Group (swing, probability) --- */
+
+.master-transforms {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+
+/* --- Master Volume (pushed right) --- */
+
+.master-volume {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 80px;
+}
+
+
+/* --- Section Labels (tiny uppercase markers) --- */
+
+.master-strip-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   RESPONSIVE: Mobile
+   DJ Filter + Volume always visible. Middle section scrollable.
+   ============================================================ */
+
+@media (max-width: 767px) {
+  .master-strip {
+    gap: 8px;
+    padding: 6px 12px;
+  }
+
+  /* Middle section stays scrollable, shrinks as needed */
+  .master-middle {
+    min-width: 0;
+  }
+
+  .master-volume {
+    width: 60px;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE: Tablet (768px+)
+   ============================================================ */
+
+@media (min-width: 768px) {
+  .master-strip {
+    padding: 8px 24px;
+    gap: 20px;
+  }
+
+  .master-volume {
+    width: 100px;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE: Desktop (1024px+)
+   ============================================================ */
+
+@media (min-width: 1024px) {
+  .master-strip {
+    padding: 8px 32px;
+  }
+
+  .master-volume {
+    width: 120px;
+  }
+}

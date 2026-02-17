@@ -166,15 +166,16 @@ export function rowsToStrudelCode(rows, stepCount, globalScale, masterEffects = 
 }
 
 /**
- * Generate clean display code for the code view (no volume/gain wrapping, no master effects).
+ * Generate display code for the code view, including master effects.
  * This is what users see and can copy/paste into Strudel REPL.
  *
  * @param {Array} rows - Array of row model objects
  * @param {number} stepCount - Number of active steps (8 or 16)
  * @param {string|null} globalScale - Global scale string or null
+ * @param {Object} [masterEffects] - Master effects for display (djf, room, delay)
  * @returns {string} Clean Strudel code string for display
  */
-export function generateDisplayCode(rows, stepCount, globalScale) {
+export function generateDisplayCode(rows, stepCount, globalScale, masterEffects = {}) {
   const lines = rows
     .map((row, i) => {
       if (row.muted) return null;
@@ -263,6 +264,24 @@ export function generateDisplayCode(rows, stepCount, globalScale) {
     .filter(line => line !== null);
 
   if (lines.length === 0) return '';
-  if (lines.length === 1) return lines[0];
-  return `stack(\n  ${lines.join(',\n  ')}\n)`;
+
+  let code;
+  if (lines.length === 1) {
+    code = lines[0];
+  } else {
+    code = `stack(\n  ${lines.join(',\n  ')}\n)`;
+  }
+
+  // Append master effects for display (so copy-paste produces full code)
+  if (masterEffects.djf !== undefined && masterEffects.djf !== null && masterEffects.djf !== 0.5) {
+    code += `\n  .djf(${masterEffects.djf.toFixed(2)})`;
+  }
+  if (masterEffects.room && masterEffects.room > 0) {
+    code += `\n  .room(${masterEffects.room})`;
+  }
+  if (masterEffects.delay && masterEffects.delay > 0) {
+    code += `\n  .delay(${masterEffects.delay})`;
+  }
+
+  return code;
 }

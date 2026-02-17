@@ -7,6 +7,7 @@ import './styles/knobs.css';
 import './styles/scale-picker.css';
 import './styles/effects-rack.css';
 import './styles/sound-browser.css';
+import './styles/master-strip.css';
 
 // Audio initialization state (module-level)
 let initialized = false;

@@ -3,6 +3,7 @@ import Knob from './Knob.jsx';
 import Slider from './Slider.jsx';
 import ToggleSwitch from './ToggleSwitch.jsx';
 import EuclideanControl from './EuclideanControl.jsx';
+import TransformControls from './TransformControls.jsx';
 import {
   EFFECT_RANGES,
   DISTORTION_TYPES,
@@ -26,6 +27,7 @@ import {
  * @param {function} props.onEuclideanChange - Called with (rowIndex, { pulses, steps, rotation })
  * @param {function} props.onSwitchToEuclid - Called with (rowIndex) to switch from manual to euclidean
  * @param {function} props.onSwitchToManual - Called with (rowIndex) to switch from euclidean to manual
+ * @param {Object} props.globalTransforms - Global transform defaults for fallback display
  */
 export default function EffectsRack({
   row,
@@ -36,6 +38,7 @@ export default function EffectsRack({
   onEuclideanChange,
   onSwitchToEuclid,
   onSwitchToManual,
+  globalTransforms = { swing: 0, degradeBy: 0, speed: 1, reverse: false },
 }) {
   // Collapsible sub-sections for filter envelope and LFO
   const [showEnvelope, setShowEnvelope] = useState(false);
@@ -602,6 +605,14 @@ export default function EffectsRack({
           </div>
         </div>
       </div>
+
+      {/* Transform Controls (per-row overrides with global fallback) */}
+      <TransformControls
+        transforms={row.transforms}
+        globalTransforms={globalTransforms}
+        onChange={(param, value) => tChange(param, value)}
+        color={color}
+      />
     </div>
   );
 }

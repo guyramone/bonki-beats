@@ -629,3 +629,84 @@
   color: var(--accent-primary);
   padding-top: 2px;
 }
+
+
+/* ============================================================
+   TRANSFORM CONTROLS (per-row overrides)
+   ============================================================ */
+
+.transform-controls {
+  padding: 8px 12px;
+  border-top: 1px solid var(--bg-tertiary);
+}
+
+.transform-controls > .effect-node-label {
+  margin-bottom: 6px;
+  display: block;
+}
+
+.transform-knobs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.transform-param {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+
+.transform-global-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.speed-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speed-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.speed-value {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: center;
+}

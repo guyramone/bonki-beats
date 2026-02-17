@@ -42,6 +42,7 @@ function Sequencer({
   onEuclideanChange,
   onSwitchToEuclid,
   onSwitchToManual,
+  globalTransforms,
 }) {
   // Track which cells just triggered (for pop animation)
   const [triggeredCells, setTriggeredCells] = useState(new Set());
@@ -196,6 +197,7 @@ function Sequencer({
                         onEuclideanChange={onEuclideanChange}
                         onSwitchToEuclid={onSwitchToEuclid}
                         onSwitchToManual={onSwitchToManual}
+                        globalTransforms={globalTransforms}
                       />
                     )}
                   </div>
