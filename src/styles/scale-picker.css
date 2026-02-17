@@ -1,0 +1,399 @@
+/* ============================================================
+   HOMIE Beats -- Scale Picker Styles
+   Visual keyboard + root/scale selectors + octave controls
+   TE-inspired: minimal, dark, precise, warm
+   ============================================================ */
+
+
+/* --- Container --- */
+
+.scale-picker {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.scale-picker-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.scale-picker-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+
+/* --- Root Note Selector --- */
+
+.root-selector {
+  display: flex;
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+
+.root-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.root-btn:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.root-btn.active {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+
+/* --- Scale Dropdown --- */
+
+.scale-dropdown-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.scale-dropdown {
+  flex: 1;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a0' d='M3 5l3 3 3-3z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.scale-dropdown:focus {
+  border-color: var(--accent-primary);
+}
+
+.scale-dropdown option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.scale-dropdown optgroup {
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.show-all-btn {
+  padding: 6px 10px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.show-all-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
+}
+
+.show-all-btn.active {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
+}
+
+
+/* --- Visual Piano Keyboard --- */
+
+.piano-keyboard {
+  position: relative;
+  display: flex;
+  height: 80px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow: hidden;
+}
+
+/* White keys */
+.piano-white-key {
+  flex: 1;
+  background: #e8e8e8;
+  border: 1px solid #ccc;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease, opacity 0.12s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  padding: 0;
+  z-index: 0;
+}
+
+.piano-white-key:hover {
+  background: #f5f5f5;
+}
+
+.piano-white-key:active {
+  background: #ddd;
+}
+
+.piano-white-key.in-scale {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.piano-white-key.in-scale:hover {
+  filter: brightness(1.1);
+}
+
+.piano-white-key.out-of-scale {
+  opacity: 0.35;
+}
+
+/* Black keys */
+.piano-black-key {
+  position: absolute;
+  top: 0;
+  width: 10%;
+  height: 55%;
+  background: #1a1a1a;
+  border: 1px solid #0a0a0a;
+  border-radius: 0 0 3px 3px;
+  cursor: pointer;
+  transition: background 0.12s ease, opacity 0.12s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 1;
+  padding: 0;
+}
+
+.piano-black-key:hover {
+  background: #333;
+}
+
+.piano-black-key:active {
+  background: #444;
+}
+
+.piano-black-key.in-scale {
+  background: var(--accent-warm);
+  border-color: var(--accent-warm);
+  color: var(--bg-primary);
+}
+
+.piano-black-key.in-scale:hover {
+  filter: brightness(1.1);
+}
+
+.piano-black-key.out-of-scale {
+  opacity: 0.25;
+}
+
+
+/* Note label (bottom of key) */
+.piano-key .note-label {
+  font-size: 9px;
+  font-weight: 600;
+  position: absolute;
+  bottom: 4px;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.piano-white-key .note-label {
+  color: #555;
+}
+
+.piano-white-key.in-scale .note-label {
+  color: var(--bg-primary);
+}
+
+.piano-black-key .note-label {
+  color: #888;
+  font-size: 8px;
+}
+
+.piano-black-key.in-scale .note-label {
+  color: var(--bg-primary);
+}
+
+
+/* Degree label (top of key) */
+.piano-key .degree-label {
+  font-size: 8px;
+  font-weight: 700;
+  position: absolute;
+  top: 4px;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.piano-white-key .degree-label {
+  color: var(--bg-primary);
+  font-size: 10px;
+}
+
+.piano-black-key .degree-label {
+  color: var(--bg-primary);
+  font-size: 8px;
+  top: 3px;
+}
+
+
+/* --- Octave Controls per Melodic Row --- */
+
+.octave-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.octave-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0;
+}
+
+.octave-row-name {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 60px;
+}
+
+.octave-row-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  min-width: 28px;
+  text-align: center;
+}
+
+.octave-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.octave-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.octave-btn:hover:not(:disabled) {
+  background: var(--bg-primary);
+}
+
+.octave-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.octave-value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  min-width: 24px;
+  text-align: center;
+}
+
+
+/* --- Scale Toggle Button (in ControlStrip) --- */
+
+.scale-toggle-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.scale-toggle-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
+}
+
+.scale-toggle-btn.active {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
+}
+
+
+/* --- Responsive --- */
+
+@media (max-width: 500px) {
+  .root-selector {
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+
+  .root-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .piano-keyboard {
+    height: 64px;
+  }
+}

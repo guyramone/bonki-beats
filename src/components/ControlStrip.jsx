@@ -17,8 +17,10 @@ import { STEP_OPTIONS } from '../utils/patterns.js';
  * @param {number} props.stepCount - Current step count (8 or 16)
  * @param {function} props.onStepCountChange - Called with new step count
  * @param {boolean} props.isPlaying - Whether audio is currently playing
+ * @param {boolean} props.scalePickerOpen - Whether scale picker panel is visible
+ * @param {function} props.onScaleToggle - Called to toggle scale picker visibility
  */
-function ControlStrip({ bpm, onBpmChange, volume, onVolumeChange, stepCount, onStepCountChange, isPlaying }) {
+function ControlStrip({ bpm, onBpmChange, volume, onVolumeChange, stepCount, onStepCountChange, isPlaying, scalePickerOpen, onScaleToggle }) {
   const hue = bpmToHue(bpm);
 
   return (
@@ -71,6 +73,21 @@ function ControlStrip({ bpm, onBpmChange, volume, onVolumeChange, stepCount, onS
           ))}
         </div>
       </div>
+
+      {/* Scale Picker Toggle */}
+      {onScaleToggle && (
+        <div className="control-group">
+          <button
+            className={`scale-toggle-btn${scalePickerOpen ? ' active' : ''}`}
+            onClick={onScaleToggle}
+            type="button"
+            aria-label={scalePickerOpen ? 'Hide scale picker' : 'Show scale picker'}
+            aria-pressed={scalePickerOpen}
+          >
+            Scale
+          </button>
+        </div>
+      )}
     </div>
   );
 }

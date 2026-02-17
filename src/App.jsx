@@ -12,9 +12,11 @@ import LayerChips from './components/LayerChips.jsx';
 import CodeView from './components/CodeView.jsx';
 import PresetGallery from './components/PresetGallery.jsx';
 import BonkiSpeech from './components/BonkiSpeech.jsx';
-import { DEFAULT_ROWS, SECTIONS } from './utils/rowModel.js';
+import ScalePicker from './components/ScalePicker.jsx';
+import { DEFAULT_ROWS, SECTIONS, ROW_COLORS, getRowLabel } from './utils/rowModel.js';
 import { rowsToStrudelCode, generateDisplayCode } from './utils/codeGenerator.js';
 import { composeLayerCode, applyVolume, addLayer, removeLayer, toggleSolo, bpmToCps } from './utils/layers.js';
+import { transposeNote, noteNameToIndex, NOTE_NAMES } from './utils/scaleData.js';
 
 /**
  * App -- HOMIE Beats instrument shell (Phase 3 row model architecture)
@@ -58,8 +60,17 @@ function App() {
   const [volume, setVolume] = useState(1);
   const [stepCount, setStepCount] = useState(8);
 
-  // --- Future Phase 3 state (initialized, wired in later plans) ---
-  const [globalScale, setGlobalScale] = useState(null);
+  // --- Scale State ---
+  const [rootNote, setRootNote] = useState('C');
+  const [scaleName, setScaleName] = useState('major');
+  const [scalePickerOpen, setScalePickerOpen] = useState(false);
+
+  // Compute globalScale from rootNote + scaleName
+  // (null means no scale applied -- only non-null when scale picker has been used)
+  const [scaleActive, setScaleActive] = useState(false);
+  const globalScale = scaleActive ? `${rootNote}:${scaleName}` : null;
+
+  // --- Master Effects State ---
   const [masterEffects, setMasterEffects] = useState({ djf: 0.5, room: 0, delay: 0, volume: 1 });
 
   // --- Beat Position State ---
@@ -360,6 +371,76 @@ function App() {
     }
   };
 
+  // --- Scale Controls ---
+
+  const handleRootChange = (newRoot) => {
+    const oldRoot = rootNote;
+    setRootNote(newRoot);
+    if (!scaleActive) setScaleActive(true);
+
+    // Auto-transpose melodic rows to maintain relative intervals in new key
+    setRows(prev => {
+      const next = prev.map(r => {
+        if (r.sound.type !== 'synth' && r.sound.type !== 'soundfont') return r;
+        if (!r.note) return r;
+        // Extract note name (strip octave number)
+        const noteName = r.note.replace(/[0-9]/g, '');
+        const octaveMatch = r.note.match(/[0-9]/);
+        const octave = octaveMatch ? octaveMatch[0] : r.octave;
+        const transposed = transposeNote(noteName, oldRoot, newRoot);
+        return {
+          ...r,
+          note: `${transposed.toLowerCase()}${octave}`,
+        };
+      });
+      rowsRef.current = next;
+      return next;
+    });
+
+    if (isPlaying) {
+      setTimeout(() => scheduleEvaluate(), 0);
+    }
+  };
+
+  const handleScaleChange = (newScale) => {
+    setScaleName(newScale);
+    if (!scaleActive) setScaleActive(true);
+    if (isPlaying) {
+      setTimeout(() => scheduleEvaluate(), 0);
+    }
+  };
+
+  const handleNotePreview = (noteName, octave) => {
+    // Find first melodic row to determine instrument sound
+    const melodicRow = rows.find(r => r.sound.type === 'synth' || r.sound.type === 'soundfont');
+    const soundName = melodicRow ? melodicRow.sound.bank : 'sawtooth';
+    // Play a one-shot note preview
+    evaluate(`note("${noteName.toLowerCase()}${octave}").s("${soundName}").release(0.3).gain(0.5)`);
+  };
+
+  const handleOctaveChange = (rowIndex, newOctave) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        const noteName = r.note ? r.note.replace(/[0-9]/g, '') : 'c';
+        return {
+          ...r,
+          octave: newOctave,
+          note: `${noteName}${newOctave}`,
+        };
+      });
+      rowsRef.current = next;
+      return next;
+    });
+    if (isPlaying) {
+      scheduleEvaluate();
+    }
+  };
+
+  const handleScalePickerToggle = () => {
+    setScalePickerOpen(prev => !prev);
+  };
+
   // --- Beat Position Tracking (Strudel scheduler -- audio-accurate) ---
   useEffect(() => {
     if (isPlaying) {
@@ -419,6 +500,19 @@ function App() {
               onPresetSelect={handlePresetSelect}
               onPresetAdd={handlePresetAdd}
             />
+            {scalePickerOpen && (
+              <ScalePicker
+                rootNote={rootNote}
+                scaleName={scaleName}
+                onRootChange={handleRootChange}
+                onScaleChange={handleScaleChange}
+                onNotePreview={handleNotePreview}
+                rows={rows}
+                onOctaveChange={handleOctaveChange}
+                rowColors={ROW_COLORS}
+                getRowLabel={getRowLabel}
+              />
+            )}
             <Sequencer
               key={stepCount}
               rows={rows}
@@ -481,6 +575,8 @@ function App() {
         stepCount={stepCount}
         onStepCountChange={handleStepCountChange}
         isPlaying={isPlaying}
+        scalePickerOpen={scalePickerOpen}
+        onScaleToggle={handleScalePickerToggle}
       />
 
       {/* Layer Chips -- visible when overlay layers exist */}
