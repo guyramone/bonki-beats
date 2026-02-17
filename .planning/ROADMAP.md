@@ -2,14 +2,15 @@
 
 ## Overview
 
-Four phases building from "tap a pad, hear a sound, see Bonki vibe" to "chat with Bonki AI and jam together as a family." Phase 1 delivers a working instrument with TE-inspired design, tabbed navigation, and Bonki vibing in the corner. Each phase adds a layer. By Phase 4, HOMIE Beats is deployed as a PWA the whole household uses daily.
+Five phases building from "tap a pad, hear a sound, see Bonki vibe" to "jam with Bonki AI as a family on any device." Phase 1 delivers a working instrument. Phase 2 adds controls and presets. Phase 3 exposes Strudel's full power through knobs, selectors, and effects — turning HOMIE Beats from a drum machine into a real instrument studio. Phase 4 adds Bonki AI as copilot. Phase 5 ships it to the world.
 
 ## Phases
 
-- [ ] **Phase 1: The Pad** - Working instrument: tabbed sequencer + pads, Bonki sprite, TE aesthetic, PWA shell
-- [ ] **Phase 2: The Board** - Presets, BPM control, code view, eclectic sound banks
-- [ ] **Phase 3: The Brain** - Bonki AI chat sidebar, natural language pattern generation
-- [ ] **Phase 4: The Polish** - AI teaching mode, smart suggestions, GitHub Pages deploy
+- [x] **Phase 1: The Pad** - Working instrument: tabbed sequencer + pads, Bonki sprite, TE aesthetic, PWA shell
+- [x] **Phase 2: The Board** - Presets, BPM control, code view, eclectic sound banks
+- [ ] **Phase 3: The Knobs** - Full Strudel power: synth selector, effects rack, scales, euclidean rhythms, sample browser
+- [ ] **Phase 4: The Brain** - Bonki AI chat sidebar, natural language pattern generation + teaching mode
+- [ ] **Phase 5: The Stage** - GitHub Pages deploy, cross-device polish, family jam UX
 
 ## Phase Details
 
@@ -78,42 +79,85 @@ Plans:
 
 ---
 
-### Phase 3: The Brain
-**Goal**: Bonki AI chat sidebar — natural language music creation and pattern explanation
+### Phase 3: The Knobs
+**Goal**: Transform HOMIE Beats from a drum machine into a full instrument studio. Expose Strudel's 70+ pattern transforms, synth engines, 30+ effects, 80+ scales, and 800+ sample banks through hands-on knobs, selectors, and controls. Kids turn knobs, hear changes instantly. Progressive disclosure: simple on the surface, deep underneath.
 **Depends on**: Phase 2
-**Requirements**: AI-01, AI-02, AI-03, ENG-03
+**Requirements**: KNOB-01 through KNOB-06 (defined during discuss phase)
 **Success Criteria** (what must be TRUE):
-  1. AI tab opens Bonki chat sidebar with message history
-  2. "make a chill beat" generates and plays a valid Strudel pattern
-  3. "what does this pattern do?" gets a plain English explanation in Bonki's voice
-  4. Code view becomes editable — changes apply on submit
-  5. Bonki character animates during AI thinking (eyes half-closed, slight sway)
-**Plans**: 3 plans
+  1. Sound selector per sequencer row — swap between drum samples, synths (saw/square/sine/supersaw), and soundfonts (piano, bass, etc.)
+  2. Effects panel with real knobs/sliders — at minimum: reverb, delay, filter (LP cutoff + resonance), distortion
+  3. Scale/key picker — choose root note and scale type, unlocking melodic sequencing with note rows
+  4. Euclidean rhythm generator — set pulses + steps per row, hear world rhythms instantly
+  5. Sample bank browser — browse beyond TR-808 (TR-909, LinnDrum, Tidal Dirt Samples, soundfonts)
+  6. Pattern transform controls — at minimum: swing, probability (degrade), reverse, speed (fast/slow)
+  7. All controls update the live code view in real time
+  8. Bonki reacts to new sounds/effects with personality ("ooh, spacey!" when reverb goes up)
+  9. Works on iPad with touch-friendly knobs (48px+ targets, rotary or slider)
+**Plans**: 8 plans
 
 Plans:
-- [ ] 03-01: Build chat sidebar UI with Bonki avatar, message history, input
-- [ ] 03-02: Claude API integration — prompt engineering for Strudel pattern generation in Bonki's voice
-- [ ] 03-03: Wire AI patterns to evaluate(), "explain pattern" feature, editable code view
+- [ ] 03-01-PLAN.md -- Row model, code generator, 16-row sequencer with collapsible sections (Wave 1)
+- [ ] 03-02-PLAN.md -- Knob, Slider, ToggleSwitch UI components with react-knob-headless (Wave 1)
+- [ ] 03-03-PLAN.md -- Sound browser: category grid, 3-level drill-down, favorites, recents, dice (Wave 2)
+- [ ] 03-04-PLAN.md -- Per-row effects rack: filter, delay, reverb, distortion, lo-fi with signal chain layout (Wave 2)
+- [ ] 03-05-PLAN.md -- Scale picker with visual keyboard + euclidean rhythm generator (Wave 2)
+- [ ] 03-06-PLAN.md -- Master effects strip with DJ filter, global transforms, per-row overrides (Wave 3)
+- [ ] 03-07-PLAN.md -- 4x8 pads with two banks + full session persistence (Wave 3)
+- [ ] 03-08-PLAN.md -- Integration: code view update, Bonki reactions, iPad verification (Wave 4)
+
+<task type="checkpoint:human-verify" gate="blocking">
+  <what-built>HOMIE Beats Phase 3 — full Strudel power exposed through knobs and controls</what-built>
+  <how-to-verify>
+    1. Open on Mac — change a sequencer row from TR-808 kick to supersaw synth. Hear the difference.
+    2. Open effects panel — turn up reverb, hear it wash. Sweep the filter cutoff.
+    3. Pick C minor pentatonic scale — toggle cells, hear a melody instead of just drums.
+    4. Set a row to euclidean (3,8) — hear a tresillo rhythm.
+    5. Browse sample banks — load TR-909, LinnDrum, or a piano soundfont.
+    6. Apply swing — feel the groove shift.
+    7. Check code view — see all changes reflected in real Strudel code.
+    8. Open on iPad — verify knobs are touch-friendly, everything works.
+    9. Hand to Moony — can they make a melody without instruction?
+    10. Hand to Nene — can they make something "weird" with effects?
+  </how-to-verify>
+  <resume-signal>Type "approved" or describe issues</resume-signal>
+</task>
 
 ---
 
-### Phase 4: The Polish
-**Goal**: Deploy to GitHub Pages, smart AI suggestions, teaching mode, family jam UX
+### Phase 4: The Brain
+**Goal**: Bonki AI comes alive — chat sidebar for natural language music creation, pattern explanation, and teaching. Bonki can now reference ALL the controls from Phase 3 ("try turning up the reverb" or "switch row 3 to a supersaw").
 **Depends on**: Phase 3
-**Requirements**: AI-04, AI-05, DEPLOY-01, DEPLOY-02
+**Requirements**: AI-01 through AI-05 (defined during discuss phase)
+**Success Criteria** (what must be TRUE):
+  1. AI tab opens Bonki chat sidebar with message history
+  2. "make a chill beat" generates and plays a valid Strudel pattern using the full feature set
+  3. "what does this pattern do?" gets a plain English explanation in Bonki's voice
+  4. Bonki can suggest specific control changes ("try euclidean 5,8 on the hi-hat")
+  5. Code view becomes editable — changes apply on submit
+  6. Bonki teaches music concepts when asked (scales, time signatures, what's a euclidean rhythm?)
+  7. Bonki character animates during AI thinking
+**Plans**: TBD
+
+Plans:
+- [ ] 04-01 through 04-XX: To be planned via /gsd:plan-phase 4
+
+---
+
+### Phase 5: The Stage
+**Goal**: Ship it. Deploy to GitHub Pages, cross-device testing, performance polish, family jam UX.
+**Depends on**: Phase 4 (or can be pulled earlier if AI is deferred)
+**Requirements**: DEPLOY-01, DEPLOY-02 (defined during discuss phase)
 **Success Criteria** (what must be TRUE):
   1. HOMIE Beats is live on GitHub Pages at a public URL
   2. PWA installs correctly from the hosted URL on all family devices
-  3. Bonki suggests pattern modifications based on what's currently playing
-  4. Bonki can teach music concepts when asked
-  5. Watch notification fires when someone starts a jam session (stretch goal)
-  6. The whole family can use it without instruction
-**Plans**: 3 plans
+  3. Performance: loads in <3s on iPad, no audio glitches
+  4. Glassmorphism theme fully integrated and polished
+  5. The whole family can use it without instruction
+  6. Watch notification fires when someone starts a jam session (stretch goal)
+**Plans**: TBD
 
 Plans:
-- [ ] 04-01: GitHub Pages deployment config, production build, service worker caching
-- [ ] 04-02: Contextual AI suggestions, teaching mode (BPM, time signatures, etc.)
-- [ ] 04-03: Final polish pass — animations, transitions, cross-device testing, family jam test
+- [ ] 05-01 through 05-XX: To be planned via /gsd:plan-phase 5
 
 ---
 
@@ -123,5 +167,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. The Pad | 4/4 | Complete | 2026-02-16 |
 | 2. The Board | 10/10 | Complete | 2026-02-16 |
-| 3. The Brain | 0/3 | Not started | - |
-| 4. The Polish | 0/3 | Not started | - |
+| 3. The Knobs | 0/8 | Planned | - |
+| 4. The Brain | 0/TBD | Not started | - |
+| 5. The Stage | 0/TBD | Not started | - |
