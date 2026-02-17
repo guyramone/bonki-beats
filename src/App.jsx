@@ -263,6 +263,106 @@ function App() {
     ));
   };
 
+  // --- Per-Row Effect/Transform/Volume/Mute Handlers (Plan 03-04) ---
+
+  /**
+   * Handle effect parameter change from EffectsRack or RowControls.
+   * paramPath supports dotted notation: 'cutoff.value', 'cutoff.active', 'filterType', etc.
+   */
+  const handleEffectChange = (rowIndex, paramPath, value) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        const newEffects = { ...r.effects };
+
+        // Handle dotted paths like 'cutoff.value', 'cutoff.active', 'resonance.value'
+        const parts = paramPath.split('.');
+        if (parts.length === 2) {
+          const [param, field] = parts;
+          if (typeof newEffects[param] === 'object' && newEffects[param] !== null) {
+            newEffects[param] = { ...newEffects[param], [field]: value };
+          } else {
+            // If the param was not an object (shouldn't happen with current model, but safe)
+            newEffects[param] = value;
+          }
+        } else {
+          // Simple path like 'filterType', 'delaytime', 'crush', etc.
+          newEffects[paramPath] = value;
+        }
+
+        return { ...r, effects: newEffects };
+      });
+
+      rowsRef.current = next;
+
+      if (isPlaying) {
+        scheduleEvaluate();
+      }
+
+      return next;
+    });
+  };
+
+  /**
+   * Handle transform parameter change (swing, degradeBy, speed, reverse).
+   */
+  const handleTransformChange = (rowIndex, param, value) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        return { ...r, transforms: { ...r.transforms, [param]: value } };
+      });
+
+      rowsRef.current = next;
+
+      if (isPlaying) {
+        scheduleEvaluate();
+      }
+
+      return next;
+    });
+  };
+
+  /**
+   * Handle per-row volume change from RowControls.
+   */
+  const handleRowVolumeChange = (rowIndex, value) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        return { ...r, volume: value };
+      });
+
+      rowsRef.current = next;
+
+      if (isPlaying) {
+        scheduleEvaluate();
+      }
+
+      return next;
+    });
+  };
+
+  /**
+   * Handle mute toggle from RowControls.
+   */
+  const handleMuteToggle = (rowIndex) => {
+    setRows(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== rowIndex) return r;
+        return { ...r, muted: !r.muted };
+      });
+
+      rowsRef.current = next;
+
+      if (isPlaying) {
+        scheduleEvaluate();
+      }
+
+      return next;
+    });
+  };
+
   // --- Pad Controls ---
 
   const handlePadTap = (pad) => {
@@ -522,6 +622,10 @@ function App() {
               onClear={handleClearGrid}
               beatStep={beatStep}
               onToggleSection={handleToggleSection}
+              onEffectChange={handleEffectChange}
+              onTransformChange={handleTransformChange}
+              onVolumeChange={handleRowVolumeChange}
+              onMuteToggle={handleMuteToggle}
             />
           </>
         );

@@ -4,6 +4,25 @@
    ============================================================ */
 
 
+/* --- Sequencer Row Wrapper (grid + controls + effects rack) --- */
+
+.sequencer-row-wrapper {
+  margin-bottom: 2px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.15s ease;
+}
+
+.sequencer-row-wrapper.muted {
+  opacity: 0.4;
+}
+
+.sequencer-row-wrapper.expanded {
+  background: rgba(26, 26, 26, 0.4);
+  border-radius: var(--radius-md);
+  padding-bottom: var(--space-xs);
+}
+
+
 /* --- Row Controls (inline strip per row) --- */
 
 .row-controls {
