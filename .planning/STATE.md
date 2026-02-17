@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-15)
 
 **Core value:** Anyone in the family can make music in 10 seconds — Bonki AI helps them go deeper
-**Current focus:** Phase 2 — The Board (COMPLETE)
+**Current focus:** Phase 3 — The Knobs (PLANNING)
 
 ## Current Position
 
-Phase: 2 of 4 (The Board)
-Plan: 10 of 10 in current phase
-Status: COMPLETE (all gap closures done)
-Last activity: 2026-02-16 — Completed 02-10-PLAN.md (Canvas Audio Visualizer)
+Phase: 3 of 5 (The Knobs)
+Plan: 0 of TBD in current phase
+Status: Context gathered. Ready for /gsd:plan-phase 3.
+Last activity: 2026-02-16 — Restructured roadmap: inserted Phase 3 (The Knobs) for full Strudel UI exposure. AI deferred to Phase 4. Deploy to Phase 5.
 
-Progress: [##########] 100% (Phase 2 — all 10 plans)
+Progress: [..........] 0% (Phase 3 — not yet planned)
 
 ## Accumulated Context
 
@@ -84,5 +84,5 @@ Progress: [##########] 100% (Phase 2 — all 10 plans)
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Phase 2 COMPLETE — all 10 plans done including gap closures 08-10. Glassmorphism CSS created but not integrated.
-Resume file: None
+Stopped at: Phase 3 context gathered — all 4 areas discussed (layout, sounds, knobs, melody). Ready for /gsd:plan-phase 3.
+Resume file: homie-beats/.planning/phases/03-the-knobs/03-CONTEXT.md
