@@ -22,6 +22,7 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+  min-width: 56px;
 }
 
 .knob-svg {
@@ -69,24 +70,24 @@
 /* Value readout above knob */
 .knob-value {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
-  min-height: 14px;
+  min-height: 16px;
   text-align: center;
-  line-height: 14px;
+  line-height: 16px;
   white-space: nowrap;
 }
 
 /* Label below knob */
 .knob-label {
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
-  min-height: 12px;
+  min-height: 14px;
   text-align: center;
-  line-height: 12px;
+  line-height: 14px;
   white-space: nowrap;
 }
 

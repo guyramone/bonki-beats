@@ -27,8 +27,8 @@ export default defineConfig({
         ]
       },
       manifest: {
-        name: 'HOMIE Beats',
-        short_name: 'Beats',
+        name: 'Bonki Beats',
+        short_name: 'Bonki',
         description: 'Visual beatpad + DJ sidekick',
         theme_color: '#000000',
         background_color: '#000000',

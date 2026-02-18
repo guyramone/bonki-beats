@@ -241,7 +241,7 @@ export default function EffectsRack({
               step={EFFECT_RANGES.cutoff.step}
               logScale
               onChange={(v) => change('cutoff.value', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={2000}
               formatValue={fmtHz}
@@ -256,7 +256,7 @@ export default function EffectsRack({
                 change('resonance.value', v);
                 change('resonance.active', true);
               }}
-              size={48}
+              size={56}
               color={color}
               defaultValue={1}
               formatValue={fmtDb}
@@ -274,15 +274,15 @@ export default function EffectsRack({
           {showEnvelope && (
             <div className="effect-knobs">
               <Knob label="ATK" value={row.effects.lpattack} min={0} max={2} step={0.01}
-                onChange={(v) => change('lpattack', v)} size={36} color={color} defaultValue={0} formatValue={fmtSec} />
+                onChange={(v) => change('lpattack', v)} size={44} color={color} defaultValue={0} formatValue={fmtSec} />
               <Knob label="DEC" value={row.effects.lpdecay} min={0} max={2} step={0.01}
-                onChange={(v) => change('lpdecay', v)} size={36} color={color} defaultValue={0.14} formatValue={fmtSec} />
+                onChange={(v) => change('lpdecay', v)} size={44} color={color} defaultValue={0.14} formatValue={fmtSec} />
               <Knob label="SUS" value={row.effects.lpsustain} min={0} max={1} step={0.01}
-                onChange={(v) => change('lpsustain', v)} size={36} color={color} defaultValue={0} formatValue={fmtPct} />
+                onChange={(v) => change('lpsustain', v)} size={44} color={color} defaultValue={0} formatValue={fmtPct} />
               <Knob label="REL" value={row.effects.lprelease} min={0} max={2} step={0.01}
-                onChange={(v) => change('lprelease', v)} size={36} color={color} defaultValue={0.1} formatValue={fmtSec} />
+                onChange={(v) => change('lprelease', v)} size={44} color={color} defaultValue={0.1} formatValue={fmtSec} />
               <Knob label="DEPTH" value={row.effects.lpenv} min={-1} max={1} step={0.01}
-                onChange={(v) => change('lpenv', v)} size={36} color={color} defaultValue={1} formatValue={fmtDb} />
+                onChange={(v) => change('lpenv', v)} size={44} color={color} defaultValue={1} formatValue={fmtDb} />
             </div>
           )}
 
@@ -297,10 +297,10 @@ export default function EffectsRack({
           {showLfo && (
             <div className="effect-knobs">
               <Knob label="RATE" value={row.effects.lprate ?? 1} min={0.1} max={20} step={0.1}
-                logScale onChange={(v) => change('lprate', v)} size={36} color={color} defaultValue={1}
+                logScale onChange={(v) => change('lprate', v)} size={44} color={color} defaultValue={1}
                 formatValue={(v) => `${v.toFixed(1)}Hz`} />
               <Knob label="DEPTH" value={row.effects.lpdepth ?? 0} min={0} max={1} step={0.01}
-                onChange={(v) => change('lpdepth', v)} size={36} color={color} defaultValue={0} formatValue={fmtPct} />
+                onChange={(v) => change('lpdepth', v)} size={44} color={color} defaultValue={0} formatValue={fmtPct} />
             </div>
           )}
         </div>
@@ -331,7 +331,7 @@ export default function EffectsRack({
               max={EFFECT_RANGES.delay.max}
               step={EFFECT_RANGES.delay.step}
               onChange={(v) => change('delay.value', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={0}
               formatValue={fmtPct}
@@ -378,7 +378,7 @@ export default function EffectsRack({
                 max={EFFECT_RANGES.delaytime.max}
                 step={EFFECT_RANGES.delaytime.step}
                 onChange={(v) => change('delaytime', v)}
-                size={48}
+                size={56}
                 color={color}
                 defaultValue={0.25}
                 formatValue={fmtSec}
@@ -392,7 +392,7 @@ export default function EffectsRack({
               max={EFFECT_RANGES.delayfeedback.max}
               step={EFFECT_RANGES.delayfeedback.step}
               onChange={(v) => change('delayfeedback', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={0.5}
               formatValue={fmtPct}
@@ -426,7 +426,7 @@ export default function EffectsRack({
               max={EFFECT_RANGES.room.max}
               step={EFFECT_RANGES.room.step}
               onChange={(v) => change('room.value', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={0}
               formatValue={fmtPct}
@@ -438,7 +438,7 @@ export default function EffectsRack({
               max={EFFECT_RANGES.roomsize.max}
               step={EFFECT_RANGES.roomsize.step}
               onChange={(v) => change('roomsize', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={2}
               formatValue={fmtDb}
@@ -506,7 +506,7 @@ export default function EffectsRack({
               max={EFFECT_RANGES.distort.max}
               step={EFFECT_RANGES.distort.step}
               onChange={(v) => change('distort.value', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={0}
               formatValue={fmtDb}
@@ -560,10 +560,10 @@ export default function EffectsRack({
               max={EFFECT_RANGES.crush.max}
               step={EFFECT_RANGES.crush.step}
               onChange={(v) => change('crush', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={16}
-              formatValue={(v) => `${v}bit`}
+              formatValue={(v) => `${Math.round(v)}bit`}
             />
             <Knob
               label="RATE"
@@ -572,10 +572,10 @@ export default function EffectsRack({
               max={EFFECT_RANGES.coarse.max}
               step={EFFECT_RANGES.coarse.step}
               onChange={(v) => change('coarse', v)}
-              size={48}
+              size={56}
               color={color}
               defaultValue={1}
-              formatValue={(v) => `${v}x`}
+              formatValue={(v) => `${Math.round(v)}x`}
             />
           </div>
         </div>

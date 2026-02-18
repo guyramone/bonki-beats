@@ -15,8 +15,9 @@ import '../styles/bonki.css';
  * @param {Object} props
  * @param {'idle'|'vibing'} props.state - Animation state (default: 'idle')
  * @param {number} props.bpm - Current BPM for vibe speed (default: 120)
+ * @param {number} props.size - CSS pixel size override (default: uses CSS width/height)
  */
-function Bonki({ state = 'idle', bpm = 120 }) {
+function Bonki({ state = 'idle', bpm = 120, size }) {
   // Calculate vibe speed: ms per beat. 120 BPM = 500ms, 60 BPM = 1000ms, 180 BPM = 333ms.
   const vibeSpeed = Math.round(60000 / bpm);
 
@@ -25,7 +26,10 @@ function Bonki({ state = 'idle', bpm = 120 }) {
       className={`bonki bonki-${state}`}
       aria-label="Bonki the DJ cat"
       role="img"
-      style={{ '--bonki-vibe-speed': `${vibeSpeed}ms` }}
+      style={{
+        '--bonki-vibe-speed': `${vibeSpeed}ms`,
+        ...(size ? { width: size, height: size } : {}),
+      }}
     >
       <svg
         viewBox="0 0 32 32"

@@ -7,6 +7,9 @@
  * Exports: rowToCodeLine, rowsToStrudelCode, generateDisplayCode
  */
 
+/** Round a numeric value to N decimal places, stripping trailing zeros */
+function r(v, d) { return parseFloat(v.toFixed(d)); }
+
 /**
  * Convert one row model object to a Strudel code line.
  * Returns null if the row is muted or has no pattern.
@@ -33,10 +36,10 @@ export function rowToCodeLine(row, rowIndex, stepCount, globalScale) {
     if (row.sound.n > 0) code += `.n(${row.sound.n})`;
   } else if (row.sound.type === 'synth') {
     const noteStr = row.note || `c${row.octave}`;
-    code = `note("${noteStr}").s("${row.sound.bank}")`;
+    code = `s("${row.sound.bank}").note("${noteStr}")`;
   } else if (row.sound.type === 'soundfont') {
     const noteStr = row.note || `c${row.octave}`;
-    code = `note("${noteStr}").s("${row.sound.bank}")`;
+    code = `s("${row.sound.bank}").note("${noteStr}")`;
   }
 
   // --- Pattern ---
@@ -54,58 +57,59 @@ export function rowToCodeLine(row, rowIndex, stepCount, globalScale) {
   }
 
   // --- Effects (only emit active effects with non-default values) ---
+  // All values rounded to match UI step precision (safety net for float drift)
 
   // Low-pass filter
   if (row.effects.cutoff.active) {
-    code += `.cutoff(${row.effects.cutoff.value})`;
+    code += `.cutoff(${r(row.effects.cutoff.value, 0)})`;
     if (row.effects.resonance.active && row.effects.resonance.value !== 1) {
-      code += `.resonance(${row.effects.resonance.value})`;
+      code += `.resonance(${r(row.effects.resonance.value, 1)})`;
     }
   }
 
   // High-pass filter
   if (row.effects.hcutoff.active) {
-    code += `.hcutoff(${row.effects.hcutoff.value})`;
+    code += `.hcutoff(${r(row.effects.hcutoff.value, 0)})`;
     if (row.effects.hresonance.active && row.effects.hresonance.value !== 1) {
-      code += `.hresonance(${row.effects.hresonance.value})`;
+      code += `.hresonance(${r(row.effects.hresonance.value, 1)})`;
     }
   }
 
   // Delay
   if (row.effects.delay.active && row.effects.delay.value > 0) {
-    code += `.delay(${row.effects.delay.value})`;
-    code += `.delaytime(${row.effects.delaytime})`;
-    code += `.delayfeedback(${row.effects.delayfeedback})`;
+    code += `.delay(${r(row.effects.delay.value, 2)})`;
+    code += `.delaytime(${r(row.effects.delaytime, 4)})`;
+    code += `.delayfeedback(${r(row.effects.delayfeedback, 2)})`;
   }
 
   // Reverb
   if (row.effects.room.active && row.effects.room.value > 0) {
-    code += `.room(${row.effects.room.value})`;
-    if (row.effects.roomsize !== 2) code += `.roomsize(${row.effects.roomsize})`;
+    code += `.room(${r(row.effects.room.value, 2)})`;
+    if (row.effects.roomsize !== 2) code += `.roomsize(${r(row.effects.roomsize, 1)})`;
     if (row.effects.ir) code += `.ir("${row.effects.ir}")`;
   }
 
   // Distortion
   if (row.effects.distort.active && row.effects.distort.value > 0) {
-    code += `.distort(${row.effects.distort.value})`;
+    code += `.distort(${r(row.effects.distort.value, 1)})`;
     if (row.effects.distorttype !== 0) code += `.distorttype(${row.effects.distorttype})`;
   }
 
   // Lo-fi
-  if (row.effects.crush !== null) code += `.crush(${row.effects.crush})`;
-  if (row.effects.coarse !== null) code += `.coarse(${row.effects.coarse})`;
+  if (row.effects.crush !== null) code += `.crush(${r(row.effects.crush, 0)})`;
+  if (row.effects.coarse !== null) code += `.coarse(${r(row.effects.coarse, 0)})`;
 
   // Pan
-  if (row.effects.pan !== 0.5) code += `.pan(${row.effects.pan})`;
+  if (row.effects.pan !== 0.5) code += `.pan(${r(row.effects.pan, 2)})`;
 
   // --- Transforms ---
   if (row.transforms.reverse) code += `.rev()`;
-  if (row.transforms.speed !== 1) code += `.fast(${row.transforms.speed})`;
+  if (row.transforms.speed !== 1) code += `.fast(${r(row.transforms.speed, 2)})`;
   if (row.transforms.degradeBy !== null && row.transforms.degradeBy > 0) {
-    code += `.degradeBy(${row.transforms.degradeBy})`;
+    code += `.degradeBy(${r(row.transforms.degradeBy, 2)})`;
   }
   if (row.transforms.swing !== null && row.transforms.swing > 0) {
-    code += `.swing(${row.transforms.swing})`;
+    code += `.swing(${r(row.transforms.swing, 2)})`;
   }
 
   // --- Volume ---
@@ -133,7 +137,7 @@ export function rowToCodeLine(row, rowIndex, stepCount, globalScale) {
  * @param {Object} masterEffects - Master effects: { djf, room, delay, volume }
  * @returns {string} Complete Strudel code string, or empty string if nothing to play
  */
-export function rowsToStrudelCode(rows, stepCount, globalScale, masterEffects = {}) {
+export function rowsToStrudelCode(rows, stepCount, globalScale, masterEffects = {}, globalTransforms = {}) {
   const lines = rows
     .map((row, i) => rowToCodeLine(row, i, stepCount, globalScale))
     .filter(line => line !== null);
@@ -150,16 +154,30 @@ export function rowsToStrudelCode(rows, stepCount, globalScale, masterEffects = 
 
   // Apply master effects outside the stack
   if (masterEffects.djf !== undefined && masterEffects.djf !== null && masterEffects.djf !== 0.5) {
-    code = `(${code}).djf(${masterEffects.djf.toFixed(2)})`;
+    code = `(${code}).djf(${r(masterEffects.djf, 2)})`;
   }
   if (masterEffects.room && masterEffects.room > 0) {
-    code = `(${code}).room(${masterEffects.room})`;
+    code = `(${code}).room(${r(masterEffects.room, 2)})`;
   }
   if (masterEffects.delay && masterEffects.delay > 0) {
-    code = `(${code}).delay(${masterEffects.delay})`;
+    code = `(${code}).delay(${r(masterEffects.delay, 2)})`;
   }
   if (masterEffects.volume !== undefined && masterEffects.volume < 1) {
     code = `(${code}).gain(${masterEffects.volume.toFixed(2)})`;
+  }
+
+  // Apply global transforms outside the stack
+  if (globalTransforms.swing && globalTransforms.swing > 0) {
+    code = `(${code}).swing(${r(globalTransforms.swing, 2)})`;
+  }
+  if (globalTransforms.degradeBy && globalTransforms.degradeBy > 0) {
+    code = `(${code}).degradeBy(${r(globalTransforms.degradeBy, 2)})`;
+  }
+  if (globalTransforms.speed && globalTransforms.speed !== 1) {
+    code = `(${code}).fast(${r(globalTransforms.speed, 2)})`;
+  }
+  if (globalTransforms.reverse) {
+    code = `(${code}).rev()`;
   }
 
   return code;
@@ -193,10 +211,10 @@ export function generateDisplayCode(rows, stepCount, globalScale, masterEffects 
         if (row.sound.n > 0) code += `.n(${row.sound.n})`;
       } else if (row.sound.type === 'synth') {
         const noteStr = row.note || `c${row.octave}`;
-        code = `note("${noteStr}").s("${row.sound.bank}")`;
+        code = `s("${row.sound.bank}").note("${noteStr}")`;
       } else if (row.sound.type === 'soundfont') {
         const noteStr = row.note || `c${row.octave}`;
-        code = `note("${noteStr}").s("${row.sound.bank}")`;
+        code = `s("${row.sound.bank}").note("${noteStr}")`;
       }
 
       // Pattern
@@ -213,45 +231,45 @@ export function generateDisplayCode(rows, stepCount, globalScale, masterEffects 
         code += `.struct("${struct}")`;
       }
 
-      // Effects (same as rowToCodeLine)
+      // Effects (rounded to match UI step precision)
       if (row.effects.cutoff.active) {
-        code += `.cutoff(${row.effects.cutoff.value})`;
+        code += `.cutoff(${r(row.effects.cutoff.value, 0)})`;
         if (row.effects.resonance.active && row.effects.resonance.value !== 1) {
-          code += `.resonance(${row.effects.resonance.value})`;
+          code += `.resonance(${r(row.effects.resonance.value, 1)})`;
         }
       }
       if (row.effects.hcutoff.active) {
-        code += `.hcutoff(${row.effects.hcutoff.value})`;
+        code += `.hcutoff(${r(row.effects.hcutoff.value, 0)})`;
         if (row.effects.hresonance.active && row.effects.hresonance.value !== 1) {
-          code += `.hresonance(${row.effects.hresonance.value})`;
+          code += `.hresonance(${r(row.effects.hresonance.value, 1)})`;
         }
       }
       if (row.effects.delay.active && row.effects.delay.value > 0) {
-        code += `.delay(${row.effects.delay.value})`;
-        code += `.delaytime(${row.effects.delaytime})`;
-        code += `.delayfeedback(${row.effects.delayfeedback})`;
+        code += `.delay(${r(row.effects.delay.value, 2)})`;
+        code += `.delaytime(${r(row.effects.delaytime, 4)})`;
+        code += `.delayfeedback(${r(row.effects.delayfeedback, 2)})`;
       }
       if (row.effects.room.active && row.effects.room.value > 0) {
-        code += `.room(${row.effects.room.value})`;
-        if (row.effects.roomsize !== 2) code += `.roomsize(${row.effects.roomsize})`;
+        code += `.room(${r(row.effects.room.value, 2)})`;
+        if (row.effects.roomsize !== 2) code += `.roomsize(${r(row.effects.roomsize, 1)})`;
         if (row.effects.ir) code += `.ir("${row.effects.ir}")`;
       }
       if (row.effects.distort.active && row.effects.distort.value > 0) {
-        code += `.distort(${row.effects.distort.value})`;
+        code += `.distort(${r(row.effects.distort.value, 1)})`;
         if (row.effects.distorttype !== 0) code += `.distorttype(${row.effects.distorttype})`;
       }
-      if (row.effects.crush !== null) code += `.crush(${row.effects.crush})`;
-      if (row.effects.coarse !== null) code += `.coarse(${row.effects.coarse})`;
-      if (row.effects.pan !== 0.5) code += `.pan(${row.effects.pan})`;
+      if (row.effects.crush !== null) code += `.crush(${r(row.effects.crush, 0)})`;
+      if (row.effects.coarse !== null) code += `.coarse(${r(row.effects.coarse, 0)})`;
+      if (row.effects.pan !== 0.5) code += `.pan(${r(row.effects.pan, 2)})`;
 
       // Transforms
       if (row.transforms.reverse) code += `.rev()`;
-      if (row.transforms.speed !== 1) code += `.fast(${row.transforms.speed})`;
+      if (row.transforms.speed !== 1) code += `.fast(${r(row.transforms.speed, 2)})`;
       if (row.transforms.degradeBy !== null && row.transforms.degradeBy > 0) {
-        code += `.degradeBy(${row.transforms.degradeBy})`;
+        code += `.degradeBy(${r(row.transforms.degradeBy, 2)})`;
       }
       if (row.transforms.swing !== null && row.transforms.swing > 0) {
-        code += `.swing(${row.transforms.swing})`;
+        code += `.swing(${r(row.transforms.swing, 2)})`;
       }
 
       // Scale (melodic rows)
@@ -274,13 +292,13 @@ export function generateDisplayCode(rows, stepCount, globalScale, masterEffects 
 
   // Append master effects for display (so copy-paste produces full code)
   if (masterEffects.djf !== undefined && masterEffects.djf !== null && masterEffects.djf !== 0.5) {
-    code += `\n  .djf(${masterEffects.djf.toFixed(2)})`;
+    code += `\n  .djf(${r(masterEffects.djf, 2)})`;
   }
   if (masterEffects.room && masterEffects.room > 0) {
-    code += `\n  .room(${masterEffects.room})`;
+    code += `\n  .room(${r(masterEffects.room, 2)})`;
   }
   if (masterEffects.delay && masterEffects.delay > 0) {
-    code += `\n  .delay(${masterEffects.delay})`;
+    code += `\n  .delay(${r(masterEffects.delay, 2)})`;
   }
 
   return code;

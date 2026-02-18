@@ -5,11 +5,12 @@ import Visualizer from './components/Visualizer.jsx';
 import TabBar from './components/TabBar.jsx';
 import Sequencer from './components/Sequencer.jsx';
 import Pads from './components/Pads.jsx';
-import Transport from './components/Transport.jsx';
+// Transport merged into MasterStrip
 import Bonki from './components/Bonki.jsx';
 import ControlStrip from './components/ControlStrip.jsx';
 import LayerChips from './components/LayerChips.jsx';
 import CodeView from './components/CodeView.jsx';
+import CodeToggle from './components/CodeToggle.jsx';
 import PresetGallery from './components/PresetGallery.jsx';
 import BonkiSpeech from './components/BonkiSpeech.jsx';
 import ScalePicker from './components/ScalePicker.jsx';
@@ -22,7 +23,7 @@ import { transposeNote, noteNameToIndex, NOTE_NAMES } from './utils/scaleData.js
 import { useSessionPersistence, loadInitialState, clearSession } from './hooks/useSessionPersistence.js';
 
 /**
- * App -- HOMIE Beats instrument shell (Phase 3 row model architecture)
+ * App -- Bonki Beats instrument shell (Phase 3 row model architecture)
  *
  * Layout: Audio init gate -> Tab bar -> Controls strip -> Layer chips -> Split pane (instrument + code view) -> Transport bar
  *
@@ -133,6 +134,20 @@ function App() {
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
 
+  // --- Refs for scheduleEvaluate (reads latest values without closure deps) ---
+  const stepCountRef = useRef(stepCount);
+  stepCountRef.current = stepCount;
+  const globalScaleRef = useRef(globalScale);
+  globalScaleRef.current = globalScale;
+  const masterEffectsRef = useRef(masterEffects);
+  masterEffectsRef.current = masterEffects;
+  const overlayLayersRef = useRef(overlayLayers);
+  overlayLayersRef.current = overlayLayers;
+  const volumeRef = useRef(volume);
+  volumeRef.current = volume;
+  const globalTransformsRef = useRef(globalTransforms);
+  globalTransformsRef.current = globalTransforms;
+
   // --- Audio Initialization ---
 
   const handleInit = async () => {
@@ -154,7 +169,8 @@ function App() {
 
   /**
    * Schedule a throttled evaluate call (rAF-based).
-   * Reads latest rows from ref to avoid stale closures.
+   * Reads ALL values from refs — zero closure deps, never stale.
+   * This eliminates the need for setTimeout() patterns in callers.
    */
   const scheduleEvaluate = useCallback(() => {
     if (evalPendingRef.current) return;
@@ -162,12 +178,17 @@ function App() {
     requestAnimationFrame(() => {
       evalPendingRef.current = false;
       const currentRows = rowsRef.current;
-      const seqCode = rowsToStrudelCode(currentRows, stepCount, globalScale, masterEffects);
+      const sc = stepCountRef.current;
+      const gs = globalScaleRef.current;
+      const me = masterEffectsRef.current;
+      const ol = overlayLayersRef.current;
+      const vol = volumeRef.current;
+      const gt = globalTransformsRef.current;
 
-      // Compose sequencer code + overlay layers
+      const seqCode = rowsToStrudelCode(currentRows, sc, gs, me, gt);
+      const overlayCodes = ol.filter(l => l.active).map(l => l.code);
+
       let finalCode = '';
-      const overlayCodes = overlayLayers.filter(l => l.active).map(l => l.code);
-
       if (seqCode && overlayCodes.length > 0) {
         finalCode = `stack(\n  ${seqCode},\n  ${overlayCodes.join(',\n  ')}\n)`;
       } else if (seqCode) {
@@ -184,41 +205,16 @@ function App() {
         return;
       }
 
-      const volumeCode = applyVolume(finalCode, volume);
-      evaluate(volumeCode);
+      const volumeCode = applyVolume(finalCode, vol);
+      evaluate(volumeCode).catch(err => {
+        console.error('[Bonki Beats] evaluate error:', err);
+        console.error('[Bonki Beats] code was:', volumeCode.slice(0, 300));
+      });
       setIsPlaying(true);
     });
-  }, [stepCount, globalScale, masterEffects, overlayLayers, volume]);
+  }, []);
 
-  /**
-   * Evaluate all layers (overlay only -- for when sequencer is not involved).
-   * Kept for pad/preset layer management compatibility.
-   */
-  const evaluateOverlayLayers = useCallback((currentOverlays, currentVolume) => {
-    const seqCode = rowsToStrudelCode(rowsRef.current, stepCount, globalScale, masterEffects);
-    const overlayCodes = currentOverlays.filter(l => l.active).map(l => l.code);
-
-    let finalCode = '';
-    if (seqCode && overlayCodes.length > 0) {
-      finalCode = `stack(\n  ${seqCode},\n  ${overlayCodes.join(',\n  ')}\n)`;
-    } else if (seqCode) {
-      finalCode = seqCode;
-    } else if (overlayCodes.length === 1) {
-      finalCode = overlayCodes[0];
-    } else if (overlayCodes.length > 1) {
-      finalCode = `stack(\n  ${overlayCodes.join(',\n  ')}\n)`;
-    }
-
-    if (!finalCode) {
-      hush();
-      setIsPlaying(false);
-      return;
-    }
-
-    const volumeCode = applyVolume(finalCode, currentVolume);
-    evaluate(volumeCode);
-    setIsPlaying(true);
-  }, [stepCount, globalScale, masterEffects]);
+  // evaluateOverlayLayers removed — all callers now update refs and use scheduleEvaluate()
 
   // --- Sequencer Controls ---
 
@@ -267,13 +263,9 @@ function App() {
     });
 
     if (isPlaying) {
-      // If overlays exist, re-evaluate without sequencer
-      if (overlayLayers.length > 0) {
-        evaluateOverlayLayers(overlayLayers, volume);
-      } else {
-        hush();
-        setIsPlaying(false);
-      }
+      // scheduleEvaluate reads from refs — if overlays exist, plays them;
+      // if nothing remains, it calls hush() automatically
+      scheduleEvaluate();
     }
   };
 
@@ -475,7 +467,7 @@ function App() {
           pattern: {
             ...r.pattern,
             euclid: { pulses: 3, steps: 8, rotation: 0 },
-            steps: Array(16).fill(false),
+            // Preserve manual steps so switching back to Manual restores the pattern
           },
         };
       });
@@ -483,6 +475,7 @@ function App() {
       if (isPlaying) scheduleEvaluate();
       return next;
     });
+    triggerBonkiReaction('euclidean');
   };
 
   const handleSwitchToManual = (rowIndex) => {
@@ -501,7 +494,8 @@ function App() {
 
   /**
    * Trigger a one-shot sound for the given row index.
-   * Evaluates a single note/sample as a quick fire-and-forget, independent of sequencer.
+   * When sequencer is playing, immediately schedules a pattern restore
+   * so the one-shot doesn't replace the running pattern for more than one frame.
    */
   const handlePadTap = (rowIndex) => {
     const row = rows[rowIndex];
@@ -514,15 +508,23 @@ function App() {
       if (row.sound.n > 0) oneShotCode += `.n(${row.sound.n})`;
     } else if (row.sound.type === 'synth') {
       const noteStr = row.note || `c${row.octave}`;
-      oneShotCode = `note("${noteStr}").s("${row.sound.bank}").release(0.3)`;
+      oneShotCode = `s("${row.sound.bank}").note("${noteStr}").release(0.3)`;
     } else if (row.sound.type === 'soundfont') {
       const noteStr = row.note || `c${row.octave}`;
-      oneShotCode = `note("${noteStr}").s("${row.sound.bank}").release(0.3)`;
+      oneShotCode = `s("${row.sound.bank}").note("${noteStr}").release(0.3)`;
     }
 
-    if (oneShotCode) {
-      oneShotCode += `.gain(${row.volume.toFixed(2)})`;
-      evaluate(oneShotCode);
+    if (!oneShotCode) return;
+    oneShotCode += `.once().gain(${row.volume.toFixed(2)})`;
+    evaluate(oneShotCode).catch(err =>
+      console.error('[Bonki Beats] pad one-shot error:', err, 'code:', oneShotCode)
+    );
+
+    if (isPlaying) {
+      // evaluate() replaced the running pattern with the one-shot —
+      // force an immediate restore of the main sequencer pattern
+      evalPendingRef.current = false;
+      scheduleEvaluate();
     }
   };
 
@@ -531,9 +533,8 @@ function App() {
   const handleRemoveLayer = (layerId) => {
     setOverlayLayers(prev => {
       const updated = removeLayer(prev, layerId);
-      if (isPlaying) {
-        evaluateOverlayLayers(updated, volume);
-      }
+      overlayLayersRef.current = updated;
+      if (isPlaying) scheduleEvaluate();
       return updated;
     });
   };
@@ -541,9 +542,8 @@ function App() {
   const handleToggleSolo = (layerId) => {
     setOverlayLayers(prev => {
       const updated = toggleSolo(prev, layerId);
-      if (isPlaying) {
-        evaluateOverlayLayers(updated, volume);
-      }
+      overlayLayersRef.current = updated;
+      if (isPlaying) scheduleEvaluate();
       return updated;
     });
   };
@@ -552,7 +552,10 @@ function App() {
 
   const handlePresetSelect = (preset) => {
     setBpm(preset.bpm);
-    evaluate(`setcps(${bpmToCps(preset.bpm)})`);
+    // Set CPS directly on the scheduler — avoids evaluate("setcps()") which
+    // internally calls hush() and replaces the pattern with silence
+    const scheduler = getScheduler();
+    if (scheduler) scheduler.setCps(bpmToCps(preset.bpm));
     evaluate(preset.code);
     setIsPlaying(true);
     showBonkiMessage(preset.bonkiLine);
@@ -560,7 +563,8 @@ function App() {
 
   const handlePresetAdd = (preset) => {
     setBpm(preset.bpm);
-    evaluate(`setcps(${bpmToCps(preset.bpm)})`);
+    const scheduler = getScheduler();
+    if (scheduler) scheduler.setCps(bpmToCps(preset.bpm));
 
     const presetLayer = {
       id: `preset-${preset.id}`,
@@ -572,7 +576,8 @@ function App() {
 
     setOverlayLayers(prev => {
       const updated = addLayer(prev, presetLayer);
-      evaluateOverlayLayers(updated, volume);
+      overlayLayersRef.current = updated;
+      scheduleEvaluate();
       return updated;
     });
 
@@ -583,16 +588,19 @@ function App() {
 
   const handleBpmChange = (newBpm) => {
     setBpm(newBpm);
-    evaluate(`setcps(${bpmToCps(newBpm)})`);
-    if (isPlaying) {
-      scheduleEvaluate();
-    }
+    // Set CPS directly on the scheduler — this takes effect immediately
+    // on the running pattern without calling evaluate() (which would
+    // internally hush() and replace the pattern with silence for one frame)
+    const scheduler = getScheduler();
+    if (scheduler) scheduler.setCps(bpmToCps(newBpm));
+    // No scheduleEvaluate needed — the pattern code doesn't contain BPM info
   };
 
   // --- Volume Control (throttled) ---
 
   const handleVolumeChange = (newVolume) => {
     setVolume(newVolume);
+    volumeRef.current = newVolume;
 
     if (volumeThrottleRef.current) return;
 
@@ -608,11 +616,9 @@ function App() {
 
   const handleStepCountChange = (newCount) => {
     setStepCount(newCount);
+    stepCountRef.current = newCount;
     if (isPlaying) {
-      // scheduleEvaluate will pick up new stepCount on next rAF
-      // (but stepCount is captured in closure -- need to trigger re-evaluate)
-      // Use setTimeout to let React state update first
-      setTimeout(() => scheduleEvaluate(), 0);
+      scheduleEvaluate();
     }
   };
 
@@ -622,13 +628,14 @@ function App() {
     const oldRoot = rootNote;
     setRootNote(newRoot);
     if (!scaleActive) setScaleActive(true);
+    // Update globalScale ref immediately so scheduleEvaluate reads the new value
+    globalScaleRef.current = `${newRoot}:${scaleName}`;
 
     // Auto-transpose melodic rows to maintain relative intervals in new key
     setRows(prev => {
       const next = prev.map(r => {
         if (r.sound.type !== 'synth' && r.sound.type !== 'soundfont') return r;
         if (!r.note) return r;
-        // Extract note name (strip octave number)
         const noteName = r.note.replace(/[0-9]/g, '');
         const octaveMatch = r.note.match(/[0-9]/);
         const octave = octaveMatch ? octaveMatch[0] : r.octave;
@@ -643,18 +650,19 @@ function App() {
     });
 
     if (isPlaying) {
-      setTimeout(() => scheduleEvaluate(), 0);
+      scheduleEvaluate();
     }
   };
 
   const handleScaleChange = (newScale) => {
     setScaleName(newScale);
     if (!scaleActive) setScaleActive(true);
+    globalScaleRef.current = `${rootNote}:${newScale}`;
+
     if (isPlaying) {
-      setTimeout(() => scheduleEvaluate(), 0);
+      scheduleEvaluate();
     }
 
-    // Bonki reacts to scale type
     if (newScale === 'minor' || newScale === 'dorian' || newScale === 'phrygian') {
       triggerBonkiReaction('scaleMinor');
     } else if (newScale === 'major' || newScale === 'mixolydian' || newScale === 'lydian') {
@@ -698,9 +706,11 @@ function App() {
   // --- Master Effect Controls ---
 
   const handleMasterEffectChange = (param, value) => {
-    setMasterEffects(prev => ({ ...prev, [param]: value }));
+    const newME = { ...masterEffects, [param]: value };
+    setMasterEffects(newME);
+    masterEffectsRef.current = newME;
     if (isPlaying) {
-      setTimeout(() => scheduleEvaluate(), 0);
+      scheduleEvaluate();
     }
 
     if (param === 'djf' && value !== 0.5) triggerBonkiReaction('djFilter');
@@ -711,7 +721,7 @@ function App() {
   const handleGlobalTransformChange = (param, value) => {
     setGlobalTransforms(prev => ({ ...prev, [param]: value }));
     if (isPlaying) {
-      setTimeout(() => scheduleEvaluate(), 0);
+      scheduleEvaluate();
     }
   };
 
@@ -805,14 +815,23 @@ function App() {
     scaleActive, masterEffects, globalTransforms,
   });
 
-  // --- Beat Position Tracking (Strudel scheduler -- audio-accurate) ---
+  // --- Beat Position Tracking (Strudel scheduler -- latency-corrected) ---
+  //
+  // scheduler.now() returns the query position, which LEADS the actual audio
+  // output by (latency * cps) cycles. Strudel schedules audio events with a
+  // fixed look-ahead (default 100ms) for Web Audio API precision. Without
+  // correction, the visual playhead runs ahead of what the listener hears —
+  // ~0.4 steps at 120BPM, ~0.6 steps at 180BPM. Subtracting the latency
+  // offset aligns the playhead with the audible beat.
   useEffect(() => {
     if (isPlaying) {
       const tick = () => {
         const scheduler = getScheduler();
         if (scheduler && scheduler.now) {
           const cyclePos = scheduler.now();
-          const fractional = cyclePos % 1;
+          const latencyInCycles = (scheduler.latency || 0.1) * (scheduler.cps || 0.5);
+          const audiblePos = cyclePos - latencyInCycles;
+          const fractional = ((audiblePos % 1) + 1) % 1; // safe modulo for negative values
           const currentStep = Math.floor(fractional * stepCount);
           setBeatStep(currentStep);
         }
@@ -896,6 +915,8 @@ function App() {
               onSwitchToManual={handleSwitchToManual}
               globalTransforms={globalTransforms}
             />
+            {/* Mini-pads docked below sequencer (tablet+ only via CSS) */}
+            <Pads rows={rows} onPadTap={handlePadTap} activeBank={padBank} onBankChange={setPadBank} compact />
           </>
         );
       case 'PADS':
@@ -927,19 +948,31 @@ function App() {
       {/* Audio Init Overlay -- gates Strudel behind user gesture */}
       {!audioReady && (
         <div className="init-overlay">
-          <h1>HOMIE Beats</h1>
-          <p className="init-subtitle">A Strudel beatpad</p>
-          <button
-            className="init-button"
-            onClick={handleInit}
-            disabled={audioLoading}
-            aria-label="Initialize audio engine"
-          >
-            {audioLoading ? 'Loading...' : 'Tap to Start'}
-          </button>
-          {audioError && (
-            <p className="init-error">Error: {audioError}</p>
-          )}
+          <div className="init-stars" aria-hidden="true" />
+          <div className="init-card">
+            <div className="init-bonki-wrapper">
+              <div className="init-notes" aria-hidden="true">
+                <span className="init-note n1">{'\u266A'}</span>
+                <span className="init-note n2">{'\u266B'}</span>
+                <span className="init-note n3">{'\u2669'}</span>
+                <span className="init-note n4">{'\u266A'}</span>
+              </div>
+              <Bonki state="idle" bpm={120} size={128} />
+            </div>
+            <h1>Bonki Beats</h1>
+            <p className="init-subtitle">a strudel beatpad by the ramones</p>
+            <button
+              className="init-button"
+              onClick={handleInit}
+              disabled={audioLoading}
+              aria-label="Initialize audio engine"
+            >
+              {audioLoading ? 'Loading...' : 'Tap to Start'}
+            </button>
+            {audioError && (
+              <p className="init-error">Error: {audioError}</p>
+            )}
+          </div>
         </div>
       )}
 
@@ -968,23 +1001,25 @@ function App() {
         />
       )}
 
-      {/* Split Pane: Instrument + Code View */}
-      <div className="split-pane">
-        <main className="split-pane-instrument" role="tabpanel" aria-label={`${activeTab} panel`}>
+      {/* Main content area with optional side visualizer */}
+      <div className="main-content">
+        <aside className="side-visualizer" aria-hidden="true">
+          <Visualizer analyser={getAnalyser()} isPlaying={isPlaying} mode="bars" color="#f5a623" />
+        </aside>
+        <main className="instrument-panel" role="tabpanel" aria-label={`${activeTab} panel`}>
           {renderTabContent()}
         </main>
-        <aside className="split-pane-code">
-          <CodeView
-            code={displayCode}
-            onCodeClick={handleCodeClick}
-            flashLine={flashInfo?.line}
-            flashKey={flashInfo?.key}
-            beatStep={beatStep}
-            stepCount={stepCount}
-            rows={rows}
-          />
-        </aside>
       </div>
+
+      {/* Floating Code Toggle */}
+      <CodeToggle
+        code={displayCode}
+        onCodeClick={handleCodeClick}
+        flashInfo={flashInfo}
+        beatStep={beatStep}
+        stepCount={stepCount}
+        rows={rows}
+      />
 
       {/* Sound Browser Modal */}
       <SoundBrowser
@@ -998,19 +1033,27 @@ function App() {
       {/* Bonki Speech Bubble -- triggered by preset loads and code view click */}
       <BonkiSpeech message={bonkiMessage} messageKey={bonkiMessageKey} />
 
-      {/* Master Effects Strip -- always visible above transport */}
+      {/* Audio Waveform Strip — the wire */}
+      <div className="visualizer-strip" aria-hidden="true">
+        <Visualizer analyser={getAnalyser()} isPlaying={isPlaying} mode="waveform" color="#f5a623" />
+      </div>
+
+      {/* Combined Master Strip + Transport Bar */}
       <MasterStrip
         masterEffects={masterEffects}
         onMasterEffectChange={handleMasterEffectChange}
         globalTransforms={globalTransforms}
         onGlobalTransformChange={handleGlobalTransformChange}
+        onPlay={handlePlay}
+        onStop={handleStop}
+        onHush={handleHush}
+        isPlaying={isPlaying}
       />
 
-      {/* Transport Bar */}
-      <Transport onPlay={handlePlay} onStop={handleStop} onHush={handleHush} isPlaying={isPlaying}>
-        <Visualizer analyser={getAnalyser()} isPlaying={isPlaying} />
-        <Bonki state={isPlaying ? 'vibing' : 'idle'} bpm={bpm} />
-      </Transport>
+      {/* Fixed Bonki -- bottom-right corner, always visible */}
+      <div className="bonki-fixed">
+        <Bonki state={isPlaying ? 'vibing' : 'idle'} bpm={bpm} size={64} />
+      </div>
     </div>
   );
 }

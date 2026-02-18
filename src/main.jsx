@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { initStrudel, samples, getAudioContext as strudelGetAudioContext, getSuperdoughAudioController } from '@strudel/web';
 import App from './App.jsx';
 import './styles/index.css';
+import './styles/glassmorphism.css';
 import './styles/knobs.css';
 import './styles/scale-picker.css';
 import './styles/effects-rack.css';

@@ -64,7 +64,7 @@ export default function TransformControls({ transforms, globalTransforms, onChan
             max={1}
             step={0.01}
             onChange={(v) => handleChange('swing', v)}
-            size={36}
+            size={44}
             color={color}
             defaultValue={null}
             formatValue={fmtPct}
@@ -81,7 +81,7 @@ export default function TransformControls({ transforms, globalTransforms, onChan
             max={1}
             step={0.01}
             onChange={(v) => handleChange('degradeBy', v)}
-            size={36}
+            size={44}
             color={color}
             defaultValue={null}
             formatValue={fmtPct}

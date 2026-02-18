@@ -142,6 +142,7 @@ function Sequencer({
                   <div
                     className={`sequencer-row-wrapper${isExpanded ? ' expanded' : ''}${row.muted ? ' muted' : ''}`}
                     key={row.id}
+                    style={isExpanded ? { '--row-edit-color': rowColor } : undefined}
                   >
                     {/* Grid row: label + cells */}
                     <div className="sequencer-grid">

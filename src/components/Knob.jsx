@@ -64,6 +64,13 @@ export default function Knob({
     return Math.round(v / step) * step;
   }, [step]);
 
+  // Wrap onChange to guarantee rounded values reach parent state.
+  // react-knob-headless may not apply valueRawRoundFn before firing
+  // onValueRawChange, especially with logScale's irrational outputs.
+  const handleChange = useCallback((v) => {
+    if (onChange) onChange(roundFn(v));
+  }, [onChange, roundFn]);
+
   // --- Display value ---
   const displayFn = useCallback((v) => {
     if (formatValue) return formatValue(v);
@@ -121,7 +128,7 @@ export default function Knob({
         valueRawDisplayFn={displayFn}
         mapTo01={mapTo01}
         mapFrom01={mapFrom01}
-        onValueRawChange={onChange}
+        onValueRawChange={handleChange}
         aria-label={label}
         includeIntoTabOrder={true}
         style={{ width: size, height: size, cursor: 'grab' }}

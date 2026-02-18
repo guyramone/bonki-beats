@@ -133,50 +133,148 @@ button {
 }
 
 
-/* --- Split Pane Layout --- */
+/* --- Main Content Wrapper (instrument + optional side visualizer) --- */
 
-.split-pane {
+.main-content {
   display: flex;
-  flex-direction: column; /* Default: stacked (mobile) */
   flex: 1;
-  overflow: hidden;
   min-height: 0;
+  overflow: hidden;
 }
 
-.split-pane-instrument {
+/* --- Side Visualizer (desktop-only spectrum analyzer) --- */
+
+.side-visualizer {
+  display: none;
+}
+
+.side-visualizer .visualizer-canvas {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  opacity: 0.7;
+}
+
+/* --- Audio Waveform Strip (the wire) --- */
+
+.visualizer-strip {
+  height: 48px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.visualizer-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(245, 166, 35, 0.03) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.visualizer-strip .visualizer-canvas {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 0;
+}
+
+/* --- Instrument Panel (full width) --- */
+
+.instrument-panel {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-md);
   min-height: 0;
 }
 
-.split-pane-code {
-  flex-shrink: 0;
-  height: 200px; /* Fixed height on mobile — scrollable code panel below instrument */
-  overflow: auto; /* WAS: hidden — blocked scrolling, truncated code */
-  padding: 0 var(--space-md) var(--space-sm);
-}
-
-.split-pane-code .code-view {
-  height: 100%;
-}
-
 /* Custom scrollbar for instrument panel (webkit) */
-.split-pane-instrument::-webkit-scrollbar {
+.instrument-panel::-webkit-scrollbar {
   width: 6px;
 }
 
-.split-pane-instrument::-webkit-scrollbar-track {
+.instrument-panel::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
 
-.split-pane-instrument::-webkit-scrollbar-thumb {
+.instrument-panel::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
   border-radius: 3px;
 }
 
-.split-pane-instrument::-webkit-scrollbar-thumb:hover {
+.instrument-panel::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+
+/* --- Code Toggle Pill + Overlay --- */
+
+.code-toggle-pill {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  z-index: 40;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.code-toggle-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  border-color: rgba(245, 166, 35, 0.4);
+}
+
+.code-toggle-pill.active {
+  background: rgba(245, 166, 35, 0.15);
+  border-color: rgba(245, 166, 35, 0.5);
+  color: var(--accent-primary);
+  box-shadow: 0 0 16px rgba(245, 166, 35, 0.2);
+}
+
+.code-toggle-overlay {
+  position: fixed;
+  top: 96px;
+  right: 16px;
+  width: min(400px, calc(100vw - 32px));
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+  z-index: 35;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(88, 28, 135, 0.1);
+  animation: code-overlay-in 0.2s ease;
+}
+
+.code-toggle-overlay .code-view {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@keyframes code-overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 
@@ -702,7 +800,7 @@ button {
   gap: var(--space-sm);
   width: 100%;
   padding: var(--space-xs) var(--space-sm);
-  background: var(--bg-secondary);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, var(--bg-secondary) 100%);
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -874,9 +972,64 @@ button {
   max-width: 100%;
 }
 
+/* Performance pads — edge-to-edge, chunky touch targets */
+.pad.pad-performance {
+  min-height: 100px;
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+}
+
 /* Flash feedback (200ms burst on tap -- background set via inline style) */
 .pad.flash {
   transform: scale(0.95);
+}
+
+/* --- Mini-Pad Strip (compact inline below sequencer) --- */
+
+.mini-pads {
+  display: none; /* Hidden on mobile — visible on tablet+ */
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  padding: var(--space-sm) 0;
+  margin-top: var(--space-sm);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mini-pad {
+  height: 36px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+  color: var(--text-primary);
+}
+
+.mini-pad:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mini-pad:active {
+  transform: scale(0.92);
+}
+
+.mini-pad.flash {
+  transform: scale(0.92);
+}
+
+.mini-pad-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 2px;
 }
 
 /* Mobile: show only bank-switched 4x4 */
@@ -888,7 +1041,7 @@ button {
   display: none;
 }
 
-/* Tablet+: show full 4x8 (both banks visible) */
+/* Tablet+: show full 4x8 (both banks visible) + mini-pads */
 @media (min-width: 768px) {
   .pads-mobile {
     display: none;
@@ -901,12 +1054,40 @@ button {
   .pad {
     min-height: 72px;
   }
+
+  .pad.pad-performance {
+    min-height: 140px;
+  }
+
+  .mini-pads {
+    display: grid;
+  }
 }
 
-/* Desktop: bigger pads */
+/* Desktop: bigger pads + 2-row mini-pads */
 @media (min-width: 1024px) {
   .pad {
     min-height: 80px;
+  }
+
+  .pad.pad-performance {
+    min-height: 140px;
+  }
+
+  .mini-pads {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+/* Ultra-wide desktop (1200px+): side spectrum analyzer */
+@media (min-width: 1200px) {
+  .side-visualizer {
+    display: flex;
+    align-items: stretch;
+    width: 80px;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -944,35 +1125,8 @@ button {
     font-size: 15px;
   }
 
-  .split-pane {
-    flex-direction: row; /* Side by side on tablet+ */
-  }
-
-  .split-pane-instrument {
-    flex: 1;
+  .instrument-panel {
     padding: var(--space-lg);
-  }
-
-  .split-pane-code {
-    width: 340px;
-    height: auto;
-    flex-shrink: 0;
-    padding: var(--space-lg);
-    border-left: var(--border-subtle);
-  }
-
-  .transport-bar {
-    padding: var(--space-sm) var(--space-lg);
-  }
-
-  .transport-button {
-    width: 52px;
-    height: 52px;
-    font-size: 20px;
-  }
-
-  .transport-button.hush {
-    font-size: 15px;
   }
 
   .init-overlay h1 {
@@ -997,7 +1151,7 @@ button {
   }
 
   .bonki-speech {
-    right: 80px;
+    right: 20px;
   }
 }
 
@@ -1018,17 +1172,8 @@ button {
     padding: 16px 28px;
   }
 
-  .split-pane-instrument {
+  .instrument-panel {
     padding: var(--space-xl);
-  }
-
-  .split-pane-code {
-    width: 400px;
-    padding: var(--space-xl);
-  }
-
-  .transport-bar {
-    padding: var(--space-md) var(--space-xl);
   }
 
   .init-overlay h1 {
@@ -1153,8 +1298,8 @@ button {
 
 .bonki-speech {
   position: fixed;
-  bottom: 70px;
-  right: 60px; /* Shift left to align with Bonki in transport */
+  bottom: 140px;
+  right: 16px;
   background: var(--bg-secondary);
   border: 1px solid var(--accent-primary);
   border-radius: var(--radius-md);
@@ -1186,19 +1331,24 @@ button {
 }
 
 
-/* --- Bonki in Transport Bar --- */
+/* --- Fixed Bonki (bottom-right corner) --- */
 
-.transport-spacer {
-  flex: 1;
+.bonki-fixed {
+  position: fixed;
+  bottom: 72px;
+  right: 16px;
+  z-index: 30;
+  filter: drop-shadow(0 0 12px rgba(245, 166, 35, 0.2));
+  transition: transform 0.3s ease;
 }
 
-.transport-bar .bonki {
-  margin-left: auto;
+.bonki-fixed:hover {
+  transform: scale(1.1);
 }
 
-/* Hide Bonki on very narrow screens to avoid transport cramping */
+/* Hide on very narrow screens */
 @media (max-width: 374px) {
-  .transport-bar .bonki {
+  .bonki-fixed {
     display: none;
   }
 }
